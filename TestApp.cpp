@@ -36,9 +36,6 @@ void TestApp::run() {
 
 void TestApp::handleExpose(const XExposeEvent &xexpose) {
     std::cout << "Expose event on window: " << xexpose.window << std::endl;
-    for (int i = 0; i < xexpose.count; ++i) {
-
-    }
 }
 
 void TestApp::handleKeyPress(const XKeyEvent &xkey) {
