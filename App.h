@@ -28,19 +28,19 @@ namespace X11App {
             cleanup();
         };
 
-        void openWindow(int winId, int x, int y, int width, int height, const char *title);
+        void windowOpen(int winId, int x, int y, int width, int height, const char *title);
 
-        void closeWindow(int winId);
+        void windowClose(int winId);
 
-        [[nodiscard]] bool isWindowOpen(int winId) const;
+        [[nodiscard]] bool windowCheckOpen(int winId) const;
 
-        [[nodiscard]] static bool isKey(const XKeyEvent &event, KeySym XK_Key);
+        [[nodiscard]] static bool keyCheckEqual(const XKeyEvent &event, KeySym XK_Key);
 
-        [[nodiscard]] XWindowAttributes getWindowAttributes(int winId) const;
+        [[nodiscard]] XWindowAttributes windowGetAttributes(int winId) const;
 
         void drawRectangle(int winId, int x, int y, XColor color, int width = 1, int height = 1) const;
 
-        [[nodiscard]] XColor createColor(unsigned short red, unsigned short green, unsigned short blue) const;
+        [[nodiscard]] XColor colorCreate(unsigned short red, unsigned short green, unsigned short blue) const;
 
     public:
         template<class TDerived>
