@@ -4,7 +4,7 @@
 
 #ifndef X11TEST_TESTAPP_H
 #define X11TEST_TESTAPP_H
-#include "App.h"
+#include "../lib/App.h"
 
 namespace ExampleApp {
     enum TestAppWindows {
@@ -12,10 +12,10 @@ namespace ExampleApp {
         POPUP_MENU = 2,
     };
 
-    class TestApp final : public X11App::App {
+    class ExampleApp final : public X11App::App {
         friend App;
 
-        explicit TestApp(Display *display)
+        explicit ExampleApp(Display *display)
             : App(display) {
         }
 

@@ -18,7 +18,7 @@ namespace X11App {
     // |*********************************************|
 
     void App::windowOpen(const int winId, const int x, const int y, const int width, const int height,
-                         const str &title) {
+                         const char *title) {
 #if DEBUG
         std::cout << "Creating window ID " << winId << " at (" << x << "," << y << ") with size " << width << "x"
                 << height << " titled \"" << title << "\"" << std::endl;
@@ -31,7 +31,7 @@ namespace X11App {
 
         XSelectInput(m_Display, window, ExposureMask | KeyPressMask);
         XMapWindow(m_Display, window);
-        XStoreName(m_Display, window, title.data());
+        XStoreName(m_Display, window, title);
 
         m_Windows[winId] = (window);
     }
@@ -103,7 +103,8 @@ namespace X11App {
     }
 
     void App::drawText(const int winId, const XColor &color, const u16 x, const u16 y, const str &text) const {
-        helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20);
+        helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20); // todo: better text size estimation
+        if (text.empty()) return;
         const Window activeWindow = m_Windows.at(winId);
 
         GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);

@@ -27,7 +27,7 @@ namespace X11App {
         // |*********************************************|
         // |               Window Management             |
         // |*********************************************|
-        void windowOpen(int winId, int x, int y, int width, int height, const std::string &title);
+        void windowOpen(int winId, int x, int y, int width, int height, const char *title);
 
         void windowClose(int winId);
 

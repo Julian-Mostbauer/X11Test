@@ -1,5 +1,5 @@
-#include "App.h"
-#include "TestApp.h"
+#include "../lib/App.h"
+#include "ExampleApp.h"
 #include <iostream>
 
 int main() {
@@ -9,7 +9,7 @@ int main() {
             << "====================================\n" << std::endl;
 #endif
     try {
-        const auto app = X11App::App::Create<ExampleApp::TestApp>();
+        const auto app = X11App::App::Create<ExampleApp::ExampleApp>();
         app->run();
         return 0;
     } catch (const std::exception &e) {

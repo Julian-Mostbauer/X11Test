@@ -2,17 +2,17 @@
 // Created by julian on 9/22/25.
 //
 
-#include "TestApp.h"
+#include "ExampleApp.h"
 
 #include <iostream>
 #include <ranges>
 
 namespace ExampleApp {
-    void TestApp::run() {
+    void ExampleApp::run() {
         XEvent event;
 
         // create main window
-        windowOpen(MAIN_WINDOW, 100, 100, 400, 300, "Test Window 1");
+        windowOpen(MAIN_WINDOW, 100, 100, 550, 300, "Test Window 1");
 
         // event loop
         while (true) {
@@ -33,7 +33,7 @@ namespace ExampleApp {
         }
     }
 
-    void TestApp::handleExpose(const XExposeEvent &xexpose) {
+    void ExampleApp::handleExpose(const XExposeEvent &xexpose) {
         std::cout << "Expose event on window: " << xexpose.window << std::endl;
         if (xexpose.count == 0) {
             auto color = colorCreate(65535, 0, 0);
@@ -53,7 +53,7 @@ namespace ExampleApp {
         }
     }
 
-    void TestApp::handleKeyPress(const XKeyEvent &xkey) {
+    void ExampleApp::handleKeyPress(const XKeyEvent &xkey) {
         if (keyCheckEqual(xkey, XK_space)) {
             if (windowCheckOpen(POPUP_MENU)) {
                 windowClose(POPUP_MENU);
@@ -64,12 +64,13 @@ namespace ExampleApp {
         std::cout << "KeyPress event on window: " << xkey.window << " keycode: " << xkey.keycode << std::endl;
     }
 
-    void TestApp::drawMainWindow() const {
+    void ExampleApp::drawMainWindow() const {
         const auto color = colorCreate(0, 65535, 0);
         drawCircle(MAIN_WINDOW, color, 100, 100, 50);
+        drawText(MAIN_WINDOW, color, 10, 250, "Press SPACE to open/close popup menu. ESC to exit.");
     }
 
-    void TestApp::drawPopupMenu() const {
+    void ExampleApp::drawPopupMenu() const {
         const auto color = colorCreate(0, 0, 65535);
 
         drawText(POPUP_MENU, color, 50, 460, "This is a popup menu. Press SPACE to close.");
