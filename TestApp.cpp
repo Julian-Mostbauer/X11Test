@@ -33,16 +33,6 @@ namespace ExampleApp {
         }
     }
 
-    void TestApp::drawMainWindow() const {
-        const auto color = colorCreate(0, 65535, 0);
-        drawRectangle(MAIN_WINDOW, 20, 20, color, 100, 100);
-    }
-
-    void TestApp::drawPopupMenu() const {
-        const auto color = colorCreate(0, 0, 65535);
-        drawRectangle(POPUP_MENU, 10, 10, color, 180, 80);
-    }
-
     void TestApp::handleExpose(const XExposeEvent &xexpose) {
         std::cout << "Expose event on window: " << xexpose.window << std::endl;
         if (xexpose.count == 0) {
@@ -68,9 +58,25 @@ namespace ExampleApp {
             if (windowCheckOpen(POPUP_MENU)) {
                 windowClose(POPUP_MENU);
             } else {
-                windowOpen(POPUP_MENU, 150, 150, 200, 100, "Popup Menu");
+                windowOpen(POPUP_MENU, 500, 150, 500, 500, "Popup Menu");
             }
         }
         std::cout << "KeyPress event on window: " << xkey.window << " keycode: " << xkey.keycode << std::endl;
+    }
+
+    void TestApp::drawMainWindow() const {
+        const auto color = colorCreate(0, 65535, 0);
+        drawCircle(MAIN_WINDOW, color, 100, 100, 50);
+    }
+
+    void TestApp::drawPopupMenu() const {
+        const auto color = colorCreate(0, 0, 65535);
+
+        drawText(POPUP_MENU, color, 50, 460, "This is a popup menu. Press SPACE to close.");
+        drawRectangle(POPUP_MENU, color, 20, 20, 200, 100);
+        drawCircle(POPUP_MENU, color, 300, 200, 75);
+
+        std::vector<XPoint> triangle = {{400, 400}, {450, 300}, {500, 400}};
+        drawPolygon(POPUP_MENU, color, triangle);
     }
 }
