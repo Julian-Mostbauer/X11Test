@@ -6,25 +6,30 @@
 #define X11TEST_TESTAPP_H
 #include "App.h"
 
-enum TestAppWindows {
-    MAIN_WINDOW = 1,
-    POPUP_MENU = 2,
-};
+namespace ExampleApp {
+    enum TestAppWindows {
+        MAIN_WINDOW = 1,
+        POPUP_MENU = 2,
+    };
 
-class TestApp final : public App {
-    friend App;
+    class TestApp final : public X11App::App {
+        friend App;
 
-    explicit TestApp(Display *display)
-        : App(display) {
-    }
+        explicit TestApp(Display *display)
+            : App(display) {
+        }
 
-    void handleExpose(const XExposeEvent &xexpose);
+        void drawMainWindow() const;
 
-    void handleKeyPress(const XKeyEvent &xkey);
+        void drawPopupMenu() const;
 
-public:
-    void run() override;
-};
+        void handleExpose(const XExposeEvent &xexpose);
 
+        void handleKeyPress(const XKeyEvent &xkey);
+
+    public:
+        void run() override;
+    };
+}
 
 #endif //X11TEST_TESTAPP_H
