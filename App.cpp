@@ -50,12 +50,18 @@ namespace X11App {
         return XLookupKeysym(const_cast<XKeyEvent *>(&event), 0) == XK_Key;
     }
 
-    void App::drawRectangle(const int winId, const int x, const int y, const XColor color, const int width,
-                            const int height) const {
+    XWindowAttributes App::getWindowAttributes(const int winId) const {
         const Window activeWindow = m_Windows.at(winId);
-#if DEBUG
         XWindowAttributes attrs{};
         XGetWindowAttributes(m_Display, activeWindow, &attrs);
+
+        return attrs;
+    }
+
+    void App::drawRectangle(const int winId, const int x, const int y, const XColor color, const int width,
+                            const int height) const {
+#if DEBUG
+        const auto attrs = getWindowAttributes(winId);
 
         if (width <= 0 || height <= 0 || x + width >= attrs.width || y + height >= attrs.height) {
             std::cout << "Trying to draw rectangle outside of window(id:" << winId
@@ -64,11 +70,11 @@ namespace X11App {
                     << width << "x" << height << std::endl;
             __builtin_trap();
         }
-
 #endif
         if (!m_Windows.contains(winId))
             throw std::runtime_error("Window ID does not exist");
 
+        const Window activeWindow = m_Windows.at(winId);
         //        const Window activeWindow = m_Windows.at(winId);
         GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
         XSetForeground(m_Display, gc, color.pixel);

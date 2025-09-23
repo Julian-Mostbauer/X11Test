@@ -36,6 +36,8 @@ namespace X11App {
 
         [[nodiscard]] static bool isKey(const XKeyEvent &event, KeySym XK_Key);
 
+        [[nodiscard]] XWindowAttributes getWindowAttributes(int winId) const;
+
         void drawRectangle(int winId, int x, int y, XColor color, int width = 1, int height = 1) const;
 
         [[nodiscard]] XColor createColor(unsigned short red, unsigned short green, unsigned short blue) const;
