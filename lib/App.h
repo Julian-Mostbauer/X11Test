@@ -12,6 +12,8 @@
 #include <vector>
 
 using u16 = unsigned short;
+using PixelPos = unsigned short;
+using str = std::string;
 
 namespace X11App {
     class App {
@@ -27,9 +29,9 @@ namespace X11App {
         // |*********************************************|
         // |               Window Management             |
         // |*********************************************|
-        void windowOpen(int winId, int x, int y, int width, int height, const char *title);
+        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, const char *title);
 
-        void windowClose(int winId);
+        void windowClose(int winId) noexcept;
 
         [[nodiscard]] bool windowCheckOpen(int winId) const;
 
@@ -42,11 +44,11 @@ namespace X11App {
 
         [[nodiscard]] XColor colorCreate(u16 red, u16 green, u16 blue) const;
 
-        void drawRectangle(int winId, const XColor &color, u16 x, u16 y, u16 width = 1, u16 height = 1) const;
+        void drawRectangle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos width = 1, PixelPos height = 1) const;
 
-        void drawCircle(int winId, const XColor &color, u16 x, u16 y, u16 radius = 10) const;
+        void drawCircle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos radius = 10) const;
 
-        void drawText(int winId, const XColor &color, u16 x, u16 y, const std::string &text) const;
+        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const char* font, const str &text) const;
 
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
 

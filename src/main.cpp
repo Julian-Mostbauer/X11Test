@@ -2,6 +2,8 @@
 #include "ExampleApp.h"
 #include <iostream>
 
+#include "../lib/FontDescriptor.h"
+
 int main() {
 #if DEBUG
     std::cout << "====================================\n"

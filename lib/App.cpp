@@ -9,15 +9,14 @@
 #include <ranges>
 #include <stdexcept>
 
-using u16 = unsigned short;
-using str = std::string;
 
 namespace X11App {
     // |*********************************************|
     // |               Window Management             |
     // |*********************************************|
 
-    void App::windowOpen(const int winId, const int x, const int y, const int width, const int height,
+    void App::windowOpen(const int winId, const PixelPos x, const PixelPos y, const PixelPos width,
+                         const PixelPos height,
                          const char *title) {
 #if DEBUG
         std::cout << "Creating window ID " << winId << " at (" << x << "," << y << ") with size " << width << "x"
@@ -36,7 +35,7 @@ namespace X11App {
         m_Windows[winId] = (window);
     }
 
-    void App::windowClose(const int winId) {
+    void App::windowClose(const int winId) noexcept {
 #if DEBUG
         if (!m_Windows.contains(winId)) {
             std::cout << "Trying to close non-existing window ID " << winId << std::endl;
@@ -78,8 +77,9 @@ namespace X11App {
         return color;
     }
 
-    void App::drawRectangle(const int winId, const XColor &color, const u16 x, const u16 y, const u16 width,
-                            const u16 height) const {
+    void App::drawRectangle(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
+                            const PixelPos width,
+                            const PixelPos height) const {
         helperValidateDrawingArgs(winId, x, y, x + width, y + height);
         const Window activeWindow = m_Windows.at(winId);
 
@@ -90,8 +90,8 @@ namespace X11App {
         XFreeGC(m_Display, gc);
     }
 
-    void App::drawCircle(const int winId, const XColor &color, const u16 x, const u16 y,
-                         const u16 radius) const {
+    void App::drawCircle(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
+                         const PixelPos radius) const {
         helperValidateDrawingArgs(winId, x - radius, y - radius, x + radius, y + radius);
         const Window activeWindow = m_Windows.at(winId);
 
@@ -102,15 +102,22 @@ namespace X11App {
         XFreeGC(m_Display, gc);
     }
 
-    void App::drawText(const int winId, const XColor &color, const u16 x, const u16 y, const str &text) const {
+    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y, const char *font,
+                       const str &text) const {
         helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20); // todo: better text size estimation
         if (text.empty()) return;
         const Window activeWindow = m_Windows.at(winId);
 
         GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
+
+        const Font fontObj = XLoadFont(m_Display, font);
+        // or a font string with size, e.g., "-*-helvetica-*-r-*-*-24-*-*-*-*-*-*-*"
+        XSetFont(m_Display, gc, fontObj);
+
         XSetForeground(m_Display, gc, color.pixel);
         XDrawString(m_Display, activeWindow, gc, x, y, text.data(), text.size());
 
+        XUnloadFont(m_Display, fontObj);
         XFreeGC(m_Display, gc);
     }
 
@@ -154,7 +161,8 @@ namespace X11App {
     // |               Helper Functions              |
     // |*********************************************|
 
-    void App::helperValidateDrawingArgs(const int winId, const u16 x1, const u16 y1, const u16 x2, const u16 y2) const {
+    void App::helperValidateDrawingArgs(const int winId, const PixelPos x1, const PixelPos y1, const PixelPos x2,
+                                        const PixelPos y2) const {
         if (!m_Windows.contains(winId))
             throw std::runtime_error("Window ID does not exist: " + std::to_string(winId));
 #if DEBUG
