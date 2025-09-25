@@ -11,6 +11,8 @@
 #include <X11/Xatom.h>
 #include <vector>
 
+#include "FontDescriptor.h"
+
 using u16 = unsigned short;
 using PixelPos = unsigned short;
 using str = std::string;
@@ -48,8 +50,8 @@ namespace X11App {
 
         void drawCircle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos radius = 10) const;
 
-        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const char* font, const str &text) const;
-
+        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const FontDescriptor &fontDescriptor, const str &text) const;
+        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const str &fontStr, const str &text) const;
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
 
 

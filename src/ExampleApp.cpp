@@ -67,14 +67,14 @@ namespace ExampleApp {
     void ExampleApp::drawMainWindow() const {
         const auto color = colorCreate(0, 65535, 0);
         drawCircle(MAIN_WINDOW, color, 100, 100, 50);
-        drawText(MAIN_WINDOW, color, 10, 250, "-*-helvetica-*-r-*-*-12-*-*-*-*-*-*-*",
+        drawText(MAIN_WINDOW, color, 10, 250, X11App::FontDescriptor("helvetica", 120),
                  "Press SPACE to open/close popup menu. ESC to exit.");
     }
 
     void ExampleApp::drawPopupMenu() const {
         const auto color = colorCreate(0, 0, 65535);
 
-        drawText(POPUP_MENU, color, 50, 460, "-*-helvetica-*-r-*-*-24-*-*-*-*-*-*-*",
+        drawText(POPUP_MENU, color, 50, 460, X11App::FontDescriptor("helvetica", 150),
                  "This is a popup menu. Press SPACE to close.");
         drawRectangle(POPUP_MENU, color, 20, 20, 200, 100);
         drawCircle(POPUP_MENU, color, 300, 200, 75);

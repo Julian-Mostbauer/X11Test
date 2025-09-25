@@ -9,6 +9,7 @@
 
 namespace X11App {
     /*
+     https://wiki.archlinux.org/title/X_Logical_Font_Description, https://en.wikibooks.org/wiki/Guide_to_X11/Fonts,
     * **FOUNDRY** (`fndry`)
       The supplier of the font.
       Use this when two fonts share the same `FAMILY_NAME`. Otherwise `*` may be substituted.
@@ -65,20 +66,18 @@ namespace X11App {
         const char *slant = "r"; // slant
         const char *setwidth_name = "*"; // sWdth
         const char *add_style = "*"; // adstyl
-        int pixel_size = 0; // pxlsz
+        const char *pixel_size = "*"; // pxlsz
         int point_size = 120; // ptSz (in tenths of a point)
-        int resolution_x = 0; // resx
-        int resolution_y = 0; // resy
-        char spacing = 'm'; // spc (p, m, or c)
-        int average_width = 0; // avgWdth
+        const char *resolution_x = "*"; // resx
+        const char *resolution_y = "*"; // resy
+        char spacing = '*'; // spc ('*' for default or: p, m, or c)
+        const char *average_width = "*"; // avgWdth
         const char *charset_registry = "*"; // rgstry
         const char *charset_encoding = "*"; // encdng
 
         FontDescriptor() = default;
 
-        FontDescriptor(const char *family, const char *weight, const int size) : family_name(family),
-            weight_name(weight),
-            point_size(size) {
+        FontDescriptor(const char *family, const int size) : family_name(family), point_size(size) {
         }
 
         [[nodiscard]] std::string toString() const {

@@ -6,6 +6,7 @@
 
 #include <format>
 #include <iostream>
+#include <limits.h>
 #include <ranges>
 #include <stdexcept>
 
@@ -102,20 +103,26 @@ namespace X11App {
         XFreeGC(m_Display, gc);
     }
 
-    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y, const char *font,
+    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
+                       const FontDescriptor &fontDescriptor,
+                       const str &text) const {
+        drawText(winId, color, x, y, fontDescriptor.toString(), text);
+    }
+
+    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
+                       const str &fontStr,
                        const str &text) const {
         helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20); // todo: better text size estimation
-        if (text.empty()) return;
+        if (text.empty() || text.size() >= INT_MAX) return;
         const Window activeWindow = m_Windows.at(winId);
 
         GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
 
-        const Font fontObj = XLoadFont(m_Display, font);
-        // or a font string with size, e.g., "-*-helvetica-*-r-*-*-24-*-*-*-*-*-*-*"
+        const Font fontObj = XLoadFont(m_Display, fontStr.data());
         XSetFont(m_Display, gc, fontObj);
 
         XSetForeground(m_Display, gc, color.pixel);
-        XDrawString(m_Display, activeWindow, gc, x, y, text.data(), text.size());
+        XDrawString(m_Display, activeWindow, gc, x, y, text.data(), static_cast<int>(text.size()));
 
         XUnloadFont(m_Display, fontObj);
         XFreeGC(m_Display, gc);
