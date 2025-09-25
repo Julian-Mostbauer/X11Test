@@ -6,13 +6,20 @@
 
 #include <iostream>
 #include <ranges>
+#include "../core/EventMask.h"
+
+using X11App::EventMask;
+using X11App::App;
+using X11App::FontDescriptor;
 
 namespace ExampleApp {
+    auto defaultMask = EventMask().useKeyPressMask().useExposureMask().mask;
+
     void ExampleApp::run() {
         XEvent event;
 
         // create main window
-        windowOpen(MAIN_WINDOW, 100, 100, 550, 300, "Test Window 1");
+        windowOpen(MAIN_WINDOW, 100, 100, 550, 300, defaultMask, "Test Window 1");
 
         // event loop
         while (true) {
@@ -55,11 +62,8 @@ namespace ExampleApp {
 
     void ExampleApp::handleKeyPress(const XKeyEvent &xkey) {
         if (keyCheckEqual(xkey, XK_space)) {
-            if (windowCheckOpen(POPUP_MENU)) {
-                windowClose(POPUP_MENU);
-            } else {
-                windowOpen(POPUP_MENU, 500, 150, 500, 500, "Popup Menu");
-            }
+            if (windowCheckOpen(POPUP_MENU)) windowClose(POPUP_MENU);
+            else windowOpen(POPUP_MENU, 500, 150, 500, 500, defaultMask, "Popup Menu");
         }
         std::cout << "KeyPress event on window: " << xkey.window << " keycode: " << xkey.keycode << std::endl;
     }
@@ -67,14 +71,14 @@ namespace ExampleApp {
     void ExampleApp::drawMainWindow() const {
         const auto color = colorCreate(0, 65535, 0);
         drawCircle(MAIN_WINDOW, color, 100, 100, 50);
-        drawText(MAIN_WINDOW, color, 10, 250, X11App::FontDescriptor("helvetica", 120),
+        drawText(MAIN_WINDOW, color, 10, 250, FontDescriptor("helvetica", 120),
                  "Press SPACE to open/close popup menu. ESC to exit.");
     }
 
     void ExampleApp::drawPopupMenu() const {
         const auto color = colorCreate(0, 0, 65535);
 
-        drawText(POPUP_MENU, color, 50, 460, X11App::FontDescriptor("helvetica", 150),
+        drawText(POPUP_MENU, color, 50, 460, FontDescriptor("helvetica", 150),
                  "This is a popup menu. Press SPACE to close.");
         drawRectangle(POPUP_MENU, color, 20, 20, 200, 100);
         drawCircle(POPUP_MENU, color, 300, 200, 75);

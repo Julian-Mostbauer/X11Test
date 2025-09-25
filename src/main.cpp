@@ -1,6 +1,4 @@
-#include <assert.h>
-
-#include "../lib/App.h"
+#include "../core/App.h"
 #include "ExampleApp.h"
 #include <iostream>
 

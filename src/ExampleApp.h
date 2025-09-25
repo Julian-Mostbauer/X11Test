@@ -4,7 +4,7 @@
 
 #ifndef X11TEST_TESTAPP_H
 #define X11TEST_TESTAPP_H
-#include "../lib/App.h"
+#include "../core/App.h"
 
 namespace ExampleApp {
     enum TestAppWindows {

@@ -17,7 +17,7 @@ namespace X11App {
     // |*********************************************|
 
     void App::windowOpen(const int winId, const PixelPos x, const PixelPos y, const PixelPos width,
-                         const PixelPos height,
+                         const PixelPos height, const unsigned long event_mask,
                          const char *title) {
 #if DEBUG
         std::cout << "Creating window ID " << winId << " at (" << x << "," << y << ") with size " << width << "x"
@@ -29,7 +29,7 @@ namespace X11App {
         const Window window = XCreateSimpleWindow(m_Display, RootWindow(m_Display, m_ScreenId), x, y, width, height, 1,
                                                   BlackPixel(m_Display, m_ScreenId), WhitePixel(m_Display, m_ScreenId));
 
-        XSelectInput(m_Display, window, ExposureMask | KeyPressMask);
+        XSelectInput(m_Display, window, event_mask);
         XMapWindow(m_Display, window);
         XStoreName(m_Display, window, title);
 

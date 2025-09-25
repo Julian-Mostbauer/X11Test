@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1")
 
 add_executable(X11Test src/main.cpp
-        lib/App.cpp
-        lib/App.h
+        core/App.cpp
+        core/App.h
         src/ExampleApp.cpp
         src/ExampleApp.h
-        lib/FontDescriptor.h
-        lib/EventMask.h)
+        core/FontDescriptor.h
+        core/EventMask.h)
 target_link_libraries(X11Test PRIVATE X11)

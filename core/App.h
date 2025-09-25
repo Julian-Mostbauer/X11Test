@@ -31,7 +31,7 @@ namespace X11App {
         // |*********************************************|
         // |               Window Management             |
         // |*********************************************|
-        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, const char *title);
+        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, unsigned long event_mask, const char *title);
 
         void windowClose(int winId) noexcept;
 
