@@ -9,5 +9,6 @@ add_executable(X11Test src/main.cpp
         lib/App.h
         src/ExampleApp.cpp
         src/ExampleApp.h
-        lib/FontDescriptor.h)
+        lib/FontDescriptor.h
+        lib/EventMask.h)
 target_link_libraries(X11Test PRIVATE X11)
