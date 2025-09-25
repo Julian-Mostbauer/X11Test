@@ -13,77 +13,86 @@ using X11App::App;
 using X11App::FontDescriptor;
 
 namespace ExampleApp {
-    auto defaultMask = EventMask().useKeyPressMask().useExposureMask().mask;
-
     void ExampleApp::run() {
-        XEvent event;
+        XPoint playerPos = {50, 50};
 
         // create main window
+        const auto defaultMask = EventMask().useKeyPressMask().useExposureMask().mask;
         windowOpen(MAIN_WINDOW, 100, 100, 550, 300, defaultMask, "Test Window 1");
 
         // event loop
         while (true) {
+            constexpr short stepSize = 10;
+            XEvent event;
             XNextEvent(m_Display, &event);
+            bool needsRedraw = false;
+            const auto winAttr = windowGetAttributes(MAIN_WINDOW);
+
             switch (event.type) {
                 case Expose:
-                    handleExpose(event.xexpose);
+                    handleExpose(event.xexpose, playerPos);
                     break;
                 case KeyPress:
                     if (keyCheckEqual(event.xkey, XK_Escape)) return;
 
-                    handleKeyPress(event.xkey);
+                    if (keyCheckEqual(event.xkey, XK_Left)) {
+                        playerPos.x = (playerPos.x >= stepSize) ? playerPos.x - stepSize : 0;
+                        needsRedraw = true;
+                    }
+
+                    if (keyCheckEqual(event.xkey, XK_Right) && playerPos.x <= winAttr.width) {
+                        playerPos.x = (playerPos.x <= winAttr.width - stepSize) ? playerPos.x + stepSize : winAttr.width;
+                        needsRedraw = true;
+                    }
+
+                    if (keyCheckEqual(event.xkey, XK_Up) && playerPos.y >= stepSize) {
+                        playerPos.y = (playerPos.y >= stepSize) ? playerPos.y - stepSize : 0;
+                        needsRedraw = true;
+                    }
+
+                    if (keyCheckEqual(event.xkey, XK_Down) && playerPos.y <= winAttr.height) {
+                        playerPos.y = (playerPos.y <= winAttr.height - stepSize) ? playerPos.y + stepSize : winAttr.height;
+                        needsRedraw = true;
+                    }
+
                     break;
                 default:
-                    std::cout << "Unknown event type: " << event.type << std::endl;
                     break;
+            }
+
+            if (needsRedraw) {
+                windowClear(MAIN_WINDOW, true);
+                handleExpose(XExposeEvent{.type = Expose, .count = 0}, playerPos); // force redraw todo: better way?
             }
         }
     }
 
-    void ExampleApp::handleExpose(const XExposeEvent &xexpose) {
-        std::cout << "Expose event on window: " << xexpose.window << std::endl;
+    void ExampleApp::handleExpose(const XExposeEvent &xexpose, const XPoint &playerPos) {
         if (xexpose.count == 0) {
-            auto color = colorCreate(65535, 0, 0);
             for (const auto &winId: m_Windows | std::views::keys) {
                 if (!windowCheckOpen(winId)) continue;
                 switch (winId) {
-                    case MAIN_WINDOW:
-                        drawMainWindow();
-                        break;
-                    case POPUP_MENU:
-                        drawPopupMenu();
-                        break;
-                    default:
-                        break;
+                    case MAIN_WINDOW: {
+                        const auto green = colorCreate(0, 65535, 0);
+                        drawCircle(MAIN_WINDOW, green, playerPos.x, playerPos.y, 20);
+                    }
+
+                    break;
+                    case POPUP_MENU: {
+                        const auto blue = colorCreate(0, 0, 65535);
+
+                        drawText(POPUP_MENU, blue, 50, 460, FontDescriptor("helvetica", 150),
+                                 "This is a popup menu. Press SPACE to close.");
+                        drawRectangle(POPUP_MENU, blue, 20, 20, 200, 100);
+                        drawCircle(POPUP_MENU, blue, 300, 200, 75);
+
+                        std::vector<XPoint> triangle = {{400, 400}, {450, 300}, {500, 400}};
+                        drawPolygon(POPUP_MENU, blue, triangle);
+                    }
+                    break;
+                    default: break;
                 }
             }
         }
-    }
-
-    void ExampleApp::handleKeyPress(const XKeyEvent &xkey) {
-        if (keyCheckEqual(xkey, XK_space)) {
-            if (windowCheckOpen(POPUP_MENU)) windowClose(POPUP_MENU);
-            else windowOpen(POPUP_MENU, 500, 150, 500, 500, defaultMask, "Popup Menu");
-        }
-        std::cout << "KeyPress event on window: " << xkey.window << " keycode: " << xkey.keycode << std::endl;
-    }
-
-    void ExampleApp::drawMainWindow() const {
-        const auto color = colorCreate(0, 65535, 0);
-        drawCircle(MAIN_WINDOW, color, 100, 100, 50);
-        drawText(MAIN_WINDOW, color, 10, 250, FontDescriptor("helvetica", 120),
-                 "Press SPACE to open/close popup menu. ESC to exit.");
-    }
-
-    void ExampleApp::drawPopupMenu() const {
-        const auto color = colorCreate(0, 0, 65535);
-
-        drawText(POPUP_MENU, color, 50, 460, FontDescriptor("helvetica", 150),
-                 "This is a popup menu. Press SPACE to close.");
-        drawRectangle(POPUP_MENU, color, 20, 20, 200, 100);
-        drawCircle(POPUP_MENU, color, 300, 200, 75);
-
-        std::vector<XPoint> triangle = {{400, 400}, {450, 300}, {500, 400}};
-        drawPolygon(POPUP_MENU, color, triangle);
     }
 }

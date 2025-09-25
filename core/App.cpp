@@ -50,6 +50,11 @@ namespace X11App {
         }
     }
 
+    void App::windowClear(const int winId, const bool flush) const {
+        XClearWindow(m_Display, m_Windows.at(winId));
+        if (flush) XFlush(m_Display);
+    }
+
     bool App::windowCheckOpen(const int winId) const {
         return m_Windows.contains(winId);
     }
@@ -175,7 +180,7 @@ namespace X11App {
 #if DEBUG
         if (const auto attrs = windowGetAttributes(winId);
             x1 > attrs.width || y1 > attrs.height || x2 > attrs.width || y2 > attrs.height) {
-            std::cout << "Trying to draw outside of window(id:" << winId
+            std::cout << "WARNING!!!\nTrying to draw outside of window(id:" << winId
                     << ") bounds:\nWindow size is " << attrs.width << "x" << attrs.height
                     << ", trying to draw between (" << x1 << "," << y1 << ") and "
                     << "(" << x2 << "," << y2 << ")"

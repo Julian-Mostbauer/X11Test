@@ -31,9 +31,12 @@ namespace X11App {
         // |*********************************************|
         // |               Window Management             |
         // |*********************************************|
-        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, unsigned long event_mask, const char *title);
+        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, unsigned long event_mask,
+                        const char *title);
 
         void windowClose(int winId) noexcept;
+
+        void windowClear(int winId, bool flush) const;
 
         [[nodiscard]] bool windowCheckOpen(int winId) const;
 
@@ -46,12 +49,17 @@ namespace X11App {
 
         [[nodiscard]] XColor colorCreate(u16 red, u16 green, u16 blue) const;
 
-        void drawRectangle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos width = 1, PixelPos height = 1) const;
+        void drawRectangle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos width = 1,
+                           PixelPos height = 1) const;
 
         void drawCircle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos radius = 10) const;
 
-        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const FontDescriptor &fontDescriptor, const str &text) const;
-        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const str &fontStr, const str &text) const;
+        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const FontDescriptor &fontDescriptor,
+                      const str &text) const;
+
+        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const str &fontStr,
+                      const str &text) const;
+
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
 
 

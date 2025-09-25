@@ -19,13 +19,7 @@ namespace ExampleApp {
             : App(display) {
         }
 
-        void drawMainWindow() const;
-
-        void drawPopupMenu() const;
-
-        void handleExpose(const XExposeEvent &xexpose);
-
-        void handleKeyPress(const XKeyEvent &xkey);
+        void handleExpose(const XExposeEvent &xexpose, const XPoint &playerPos);
 
     public:
         void run() override;
