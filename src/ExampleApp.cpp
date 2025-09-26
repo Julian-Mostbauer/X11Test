@@ -50,13 +50,29 @@ namespace ExampleApp {
                 }
             }
 
+            // Pop up menu logic
+            if (pressedKeys.contains(XK_space)) {
+                if (!windowCheckOpen(POPUP_MENU)) {
+                    windowOpen(POPUP_MENU, 700, 100, 600, 500, defaultMask, "Popup Menu");
+                    windowForceRedraw(POPUP_MENU);
+                } else {
+                    windowClose(POPUP_MENU);
+                }
+                pressedKeys.erase(XK_space); // prevent repeated toggling
+            }
+
             // Movement logic
-            constexpr short stepSize = 10;
             int dx = 0, dy = 0;
-            if (pressedKeys.contains(XK_Left)) dx -= stepSize;
-            if (pressedKeys.contains(XK_Right)) dx += stepSize;
-            if (pressedKeys.contains(XK_Up)) dy -= stepSize;
-            if (pressedKeys.contains(XK_Down)) dy += stepSize;
+            if (pressedKeys.contains(XK_Left)) dx -= player.stepSize;
+            if (pressedKeys.contains(XK_Right)) dx += player.stepSize;
+            if (pressedKeys.contains(XK_Up)) dy -= player.stepSize;
+            if (pressedKeys.contains(XK_Down)) dy += player.stepSize;
+
+            // Normalize diagonal movement to maintain consistent speed
+            if (dx != 0 && dy != 0) {
+                dx = static_cast<int>(dx / 1.414213562);
+                dy = static_cast<int>(dy / 1.414213562);
+            }
 
             if (dx != 0 || dy != 0) {
                 player.pos.x = std::clamp(player.pos.x + dx, player.size, winAttr.width - player.size);
@@ -67,7 +83,7 @@ namespace ExampleApp {
             usleep(16000); // ~60 FPS // todo: replace with proper timing mechanism
             if (needsRedraw) {
                 windowClear(MAIN_WINDOW, true);
-                handleExpose(XExposeEvent{});
+                windowForceRedraw(MAIN_WINDOW);
             }
         }
     }
@@ -76,7 +92,9 @@ namespace ExampleApp {
         if (event.count != 0) return;
 
         for (const auto &winId: m_Windows | std::views::keys) {
-            if (!windowCheckOpen(winId)) continue;
+            // only draw if the expose event is for this window and the window is open
+            if (const auto win = m_Windows.at(winId); win != event.window || !windowCheckOpen(winId)) continue;
+
             switch (winId) {
                 case MAIN_WINDOW: {
                     const auto green = colorCreate(0, 65535, 0);
@@ -87,7 +105,7 @@ namespace ExampleApp {
                 case POPUP_MENU: {
                     const auto blue = colorCreate(0, 0, 65535);
 
-                    drawText(POPUP_MENU, blue, 50, 460, FontDescriptor("helvetica", 150),
+                    drawText(POPUP_MENU, blue, 50, 460, FontDescriptor("helvetica", 150).toString(),
                              "This is a popup menu. Press SPACE to close.");
                     drawRectangle(POPUP_MENU, blue, 20, 20, 200, 100);
                     drawCircle(POPUP_MENU, blue, 300, 200, 75);

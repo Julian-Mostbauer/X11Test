@@ -15,6 +15,7 @@ namespace ExampleApp {
     struct Player {
         XPoint pos;
         int size;
+        int stepSize;
     };
 
     class ExampleApp final : public X11App::App {
@@ -22,7 +23,7 @@ namespace ExampleApp {
         Player player;
 
         explicit ExampleApp(Display *display)
-            : App(display), player({100, 100}, 20) {
+            : App(display), player({100, 100}, 20, 10) {
         }
 
         void handleExpose(const XExposeEvent &event) override;

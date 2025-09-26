@@ -34,15 +34,39 @@ namespace X11App {
         // |*********************************************|
         // |               Window Management             |
         // |*********************************************|
+
+        /// Create and open a new window with the specified parameters. If the window ID already exists, throws std::runtime_error.
+        /// @param winId The ID of the window to create.
+        /// @param x The X position of the top-left corner of the window.
+        /// @param y The Y position of the top-left corner of the window.
+        /// @param width The width of the window in pixels.
+        /// @param height The height of the window in pixels.
+        /// @param event_mask The event mask to set for the window. This determines which events the window will receive.
+        /// @param title The title of the window.
         void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, long event_mask,
                         const char *title);
 
+        /// Close and destroy the specified window. If the window ID does not exist calls debug_trap.
+        /// @param winId The ID of the window to close.
         void windowClose(int winId) noexcept;
 
+        /// Clear the contents of the specified window. Optionally flush the display after clearing.
+        /// @param winId The ID of the window to clear.
+        /// @param flush If true, flush the display after clearing. Flushing ensures that the clear operation is sent to the X server immediately.
         void windowClear(int winId, bool flush) const;
 
+        /// Force a redraw of all windows by calling handleExpose with an empty event.
+        /// @param winId The ID of the window to redraw.
+        void windowForceRedraw(int winId);
+
+        /// Check if a window with the specified ID is currently open.
+        /// @param winId The ID of the window to check.
+        /// @return True if the window is open, false otherwise.
         [[nodiscard]] bool windowCheckOpen(int winId) const;
 
+        /// Get the attributes of the specified window.
+        /// @param winId The ID of the window to get attributes for.
+        /// @return The XWindowAttributes structure containing the window's attributes.
         [[nodiscard]] XWindowAttributes windowGetAttributes(int winId) const;
 
 
@@ -50,24 +74,53 @@ namespace X11App {
         //|                  Drawing                    |
         //|*********************************************|
 
+        /// Create an XColor from the specified RGB values. Allocates the color in the default colormap.
+        /// @param red The red component (0-65535).
+        /// @param green The green component (0-65535).
+        /// @param blue The blue component (0-65535).
+        /// @return The allocated XColor.
         [[nodiscard]] XColor colorCreate(u16 red, u16 green, u16 blue) const;
 
+        /// Draw a filled rectangle on the specified window.
+        /// @param winId The ID of the window to draw on.
+        /// @param color The color to use for drawing.
+        /// @param x The X position of the top-left corner of the rectangle.
+        /// @param y The Y position of the top-left corner of the rectangle.
+        /// @param width The width of the rectangle in pixels. Default is 1.
+        /// @param height The height of the rectangle in pixels. Default is 1.
         void drawRectangle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos width = 1,
                            PixelPos height = 1) const;
 
+        /// Draw a filled circle on the specified window.
+        /// @param winId The ID of the window to draw on.
+        /// @param color The color to use for drawing.
+        /// @param x The X position of the center of the circle.
+        /// @param y The Y position of the center of the circle.
+        /// @param radius The radius of the circle in pixels. Default is 10.
         void drawCircle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos radius = 10) const;
 
-        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const FontDescriptor &fontDescriptor,
-                      const str &text) const;
-
+        /// Draw text on the specified window using a FontDescriptor.
+        /// @param winId The ID of the window to draw on.
+        /// @param color The color to use for drawing.
+        /// @param x The X position of the top-left corner of the text.
+        /// @param y The Y position of the top-left corner of the text.
+        /// @param fontStr The X-Logical-Font-Description of the font.
+        /// @param text The text to draw.
         void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const str &fontStr,
                       const str &text) const;
 
+        /// Draw a filled polygon on the specified window.
+        /// @param winId The ID of the window to draw on.
+        /// @param color The color to use for drawing.
+        /// @param points A vector of XPoint structures defining the vertices of the polygon.
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
 
         // |*********************************************|
         // |                Event Handling               |
         // |*********************************************|
+
+        /// Dispatch the given XEvent to the appropriate handler function based on its type.
+        /// @param event The XEvent to handle.
         void handleEvent(const XEvent &event);
 
         /// Template macro to define event handler functions for X11 events. Default implementation simply calls debug_trap.
@@ -112,6 +165,10 @@ namespace X11App {
 
         virtual ~App();
 
+        /// Check if the given XKeyEvent corresponds to the specified KeySym.
+        /// @param event The XKeyEvent to check.
+        /// @param XK_Key The KeySym to compare against (e.g., XK_Escape).
+        /// @return True if the event matches the KeySym, false otherwise.
         [[nodiscard]] static bool keyCheckEqual(const XKeyEvent &event, KeySym XK_Key);
 
     private:
@@ -179,6 +236,7 @@ namespace X11App {
             return new TDerived(display);
         }
 
+        /// The main application loop. Must be implemented by derived classes.
         virtual void run() = 0;
     };
 }

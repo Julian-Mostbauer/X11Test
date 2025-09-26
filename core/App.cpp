@@ -54,6 +54,18 @@ namespace X11App {
         if (flush) XFlush(m_Display);
     }
 
+    void App::windowForceRedraw(const int winId) {
+        const Window activeWindow = m_Windows.at(winId);
+        if (!activeWindow) return;
+
+        const auto emptyEvent = XExposeEvent{
+            .type = Expose, .serial = 0, .send_event = False, .display = m_Display,
+            .window = activeWindow, .x = 0, .y = 0, .width = 0, .height = 0, .count = 0
+        };
+
+        handleExpose(emptyEvent);
+    }
+
     bool App::windowCheckOpen(const int winId) const {
         return m_Windows.contains(winId);
     }
@@ -108,12 +120,6 @@ namespace X11App {
     }
 
     void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
-                       const FontDescriptor &fontDescriptor,
-                       const str &text) const {
-        drawText(winId, color, x, y, fontDescriptor.toString(), text);
-    }
-
-    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
                        const str &fontStr,
                        const str &text) const {
         helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20); // todo: better text size estimation
@@ -135,7 +141,9 @@ namespace X11App {
     void App::drawPolygon(const int winId, const XColor &color, std::vector<XPoint> &points) const {
         helperValidateDrawingArgs(winId, 0, 0, 0, 0);
         const Window activeWindow = m_Windows.at(winId);
-        if (points.size() < 3 || points.size() > INT_MAX) throw std::runtime_error("A polygon must have at least 3 points");
+        if (points.size() < 3 || points.size() > INT_MAX)
+            throw std::runtime_error(
+                "A polygon must have at least 3 points");
 
 #if DEBUG
         // todo: look into better handling of validation
@@ -146,7 +154,8 @@ namespace X11App {
 
         GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
         XSetForeground(m_Display, gc, color.pixel);
-        XFillPolygon(m_Display, activeWindow, gc, points.data(), static_cast<int>(points.size()), Convex, CoordModeOrigin);
+        XFillPolygon(m_Display, activeWindow, gc, points.data(), static_cast<int>(points.size()), Convex,
+                     CoordModeOrigin);
 
         XFreeGC(m_Display, gc);
     }
