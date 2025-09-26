@@ -4,6 +4,8 @@
 
 #ifndef X11TEST_TESTAPP_H
 #define X11TEST_TESTAPP_H
+#include <unordered_set>
+
 #include "../core/App.h"
 
 namespace ExampleApp {
@@ -20,13 +22,26 @@ namespace ExampleApp {
 
     class ExampleApp final : public X11App::App {
         friend App;
+
+        static long defaultMask;
+
+        std::unordered_set<KeySym> pressedKeys;
         Player player;
+        bool running;
 
         explicit ExampleApp(Display *display)
-            : App(display), player({100, 100}, 20, 10) {
+            : App(display), player({100, 100}, 20, 10), running(true) {
         }
 
-        void handleExpose(const XExposeEvent &event) override;
+        bool updatePlayer();
+
+        void updatePopupMenu();
+
+        void handleExpose(XExposeEvent &event) override;
+
+        void handleKeyPress(XKeyEvent &event) override;
+
+        void handleKeyRelease(XKeyEvent &event) override;
 
     public:
         void run() override;

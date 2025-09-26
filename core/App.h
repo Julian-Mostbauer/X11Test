@@ -118,16 +118,18 @@ namespace X11App {
         // |*********************************************|
         // |                Event Handling               |
         // |*********************************************|
+        /// Process all pending X events by retrieving them from the X server and dispatching them to the appropriate handler functions.
+        void handleAllQueuedEvents();
 
-        /// Dispatch the given XEvent to the appropriate handler function based on its type.
+        /// Dispatch the given XEvent to the appropriate handler function based on its type. Uses a non const reference to allow more flexibility in handling.
         /// @param event The XEvent to handle.
-        void handleEvent(const XEvent &event);
+        void handleEvent(XEvent &event);
 
-        /// Template macro to define event handler functions for X11 events. Default implementation simply calls debug_trap.
+        /// Template macro to define event handler functions for X11 events. Default implementation simply calls debug_trap. Uses a non const reference to allow more flexibility in handling.
         /// @param EVENT_NAME
         /// @param TYPE_NAME
 #define HANDLE_EVENT_FUNC_TEMPLATE(EVENT_NAME, TYPE_NAME) \
-    virtual void handle##EVENT_NAME(const X##TYPE_NAME##Event &event) { \
+    virtual void handle##EVENT_NAME(X##TYPE_NAME##Event &event) { \
     /*Avoid unsued param warning*/ (void)event;\
     debug_trap("Unhandled " #EVENT_NAME " event for window");\
     };

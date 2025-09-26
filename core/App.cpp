@@ -58,7 +58,7 @@ namespace X11App {
         const Window activeWindow = m_Windows.at(winId);
         if (!activeWindow) return;
 
-        const auto emptyEvent = XExposeEvent{
+        auto emptyEvent = XExposeEvent{
             .type = Expose, .serial = 0, .send_event = False, .display = m_Display,
             .window = activeWindow, .x = 0, .y = 0, .width = 0, .height = 0, .count = 0
         };
@@ -164,7 +164,15 @@ namespace X11App {
     // |               Event Handling                |
     // |*********************************************|
 
-    void App::handleEvent(const XEvent &event) {
+    void App::handleAllQueuedEvents() {
+        XEvent event;
+        while (XPending(m_Display)) {
+            XNextEvent(m_Display, &event);
+            handleEvent(event);
+        }
+    }
+
+    void App::handleEvent(XEvent &event) {
         switch (event.type) {
             case Expose: handleExpose(event.xexpose);
                 break;
