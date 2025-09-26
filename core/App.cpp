@@ -185,6 +185,7 @@ namespace X11App {
                     << ", trying to draw between (" << x1 << "," << y1 << ") and "
                     << "(" << x2 << "," << y2 << ")"
                     << std::endl;
+            std::cout << "Trap call at: Line" << __LINE__ + 1 << " in " << __FILE__ << std::endl;
             __builtin_trap();
         }
 #endif

@@ -4,6 +4,7 @@
 
 #include "ExampleApp.h"
 
+#include <algorithm>
 #include <iostream>
 #include <ranges>
 #include "../core/EventMask.h"
@@ -13,6 +14,8 @@ using X11App::App;
 using X11App::FontDescriptor;
 
 namespace ExampleApp {
+    constexpr int playerSize = 20;
+
     void ExampleApp::run() {
         XPoint playerPos = {50, 50};
 
@@ -36,22 +39,22 @@ namespace ExampleApp {
                     if (keyCheckEqual(event.xkey, XK_Escape)) return;
 
                     if (keyCheckEqual(event.xkey, XK_Left)) {
-                        playerPos.x = (playerPos.x >= stepSize) ? playerPos.x - stepSize : 0;
+                        playerPos.x = std::max(playerPos.x - stepSize, playerSize);
                         needsRedraw = true;
                     }
 
-                    if (keyCheckEqual(event.xkey, XK_Right) && playerPos.x <= winAttr.width) {
-                        playerPos.x = (playerPos.x <= winAttr.width - stepSize) ? playerPos.x + stepSize : winAttr.width;
+                    if (keyCheckEqual(event.xkey, XK_Right)) {
+                        playerPos.x = std::min(playerPos.x + stepSize, winAttr.width-playerSize);
                         needsRedraw = true;
                     }
 
-                    if (keyCheckEqual(event.xkey, XK_Up) && playerPos.y >= stepSize) {
-                        playerPos.y = (playerPos.y >= stepSize) ? playerPos.y - stepSize : 0;
+                    if (keyCheckEqual(event.xkey, XK_Up)) {
+                        playerPos.y = std::max(playerPos.y - stepSize, playerSize);
                         needsRedraw = true;
                     }
 
-                    if (keyCheckEqual(event.xkey, XK_Down) && playerPos.y <= winAttr.height) {
-                        playerPos.y = (playerPos.y <= winAttr.height - stepSize) ? playerPos.y + stepSize : winAttr.height;
+                    if (keyCheckEqual(event.xkey, XK_Down)) {
+                        playerPos.y = std::min(playerPos.y + stepSize, winAttr.height-playerSize);
                         needsRedraw = true;
                     }
 
@@ -74,7 +77,7 @@ namespace ExampleApp {
                 switch (winId) {
                     case MAIN_WINDOW: {
                         const auto green = colorCreate(0, 65535, 0);
-                        drawCircle(MAIN_WINDOW, green, playerPos.x, playerPos.y, 20);
+                        drawCircle(MAIN_WINDOW, green, playerPos.x, playerPos.y, playerSize);
                     }
 
                     break;
