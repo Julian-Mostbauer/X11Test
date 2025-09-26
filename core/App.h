@@ -4,15 +4,15 @@
 
 #ifndef X11TEST_APP_H
 #define X11TEST_APP_H
+
 #include <iostream>
 #include <map>
 #include <stdexcept>
+#include <vector>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
-#include <X11/XKBlib.h>
-#include <X11/Xatom.h>
-#include <vector>
 
 #include "FontDescriptor.h"
 
@@ -34,7 +34,7 @@ namespace X11App {
         // |*********************************************|
         // |               Window Management             |
         // |*********************************************|
-        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, unsigned long event_mask,
+        void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, long event_mask,
                         const char *title);
 
         void windowClose(int winId) noexcept;
@@ -71,7 +71,13 @@ namespace X11App {
         void handleEvent(const XEvent &event);
 
         /// Template macro to define event handler functions for X11 events. Default implementation simply calls debug_trap.
-#define HANDLE_EVENT_FUNC_TEMPLATE(EVENT_NAME, TYPE_NAME) virtual void handle##EVENT_NAME(const X##TYPE_NAME##Event &event) { debug_trap("Unhandled " #EVENT_NAME " event for window ");};
+        /// @param EVENT_NAME
+        /// @param TYPE_NAME
+#define HANDLE_EVENT_FUNC_TEMPLATE(EVENT_NAME, TYPE_NAME) \
+    virtual void handle##EVENT_NAME(const X##TYPE_NAME##Event &event) { \
+    /*Avoid unsued param warning*/ (void)event;\
+    debug_trap("Unhandled " #EVENT_NAME " event for window");\
+    };
 
         HANDLE_EVENT_FUNC_TEMPLATE(Expose, Expose)
         HANDLE_EVENT_FUNC_TEMPLATE(KeyPress, Key)
@@ -104,11 +110,7 @@ namespace X11App {
         // |                    Misc                     |
         // |*********************************************|
 
-        void cleanup() const;
-
-        virtual ~App() {
-            cleanup();
-        };
+        virtual ~App();
 
         [[nodiscard]] static bool keyCheckEqual(const XKeyEvent &event, KeySym XK_Key);
 

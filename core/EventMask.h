@@ -6,7 +6,7 @@
 #define X11TEST_EVENTMASK_H
 
 /// Macro meant for use in this file exclusively! Generates a function that enables the flag given as input
-#define USE_FUNC_TEMPLATE(FLAG) EventMask &use##FLAG() noexcept {mask |= FLAG; return *this;}
+#define USE_FUNC_TEMPLATE(FLAG) EventMask &use##FLAG() noexcept {mask |= (FLAG); return *this;}
 
 namespace X11App {
     /**
@@ -38,7 +38,7 @@ namespace X11App {
     * - OwnerGrabButtonMask		    Automatic grabs should activate with owner_events set to True
      */
     struct EventMask {
-        unsigned long mask = 0;
+        long mask = 0;
 
         /**
          * Special Implementation for NoEvent, removes any other active masks

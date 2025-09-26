@@ -6,7 +6,7 @@
 
 #include <format>
 #include <iostream>
-#include <limits.h>
+#include <climits>
 #include <ranges>
 #include <stdexcept>
 
@@ -17,7 +17,7 @@ namespace X11App {
     // |*********************************************|
 
     void App::windowOpen(const int winId, const PixelPos x, const PixelPos y, const PixelPos width,
-                         const PixelPos height, const unsigned long event_mask,
+                         const PixelPos height, const long event_mask,
                          const char *title) {
 #if DEBUG
         std::cout << "Creating window ID " << winId << " at (" << x << "," << y << ") with size " << width << "x"
@@ -33,7 +33,7 @@ namespace X11App {
         XMapWindow(m_Display, window);
         XStoreName(m_Display, window, title);
 
-        m_Windows[winId] = (window);
+        m_Windows[winId] = window;
     }
 
     void App::windowClose(const int winId) noexcept {
@@ -88,7 +88,7 @@ namespace X11App {
         helperValidateDrawingArgs(winId, x, y, x + width, y + height);
         const Window activeWindow = m_Windows.at(winId);
 
-        GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
+        const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
         XSetForeground(m_Display, gc, color.pixel);
         XFillRectangle(m_Display, activeWindow, gc, x, y, width, height);
 
@@ -100,7 +100,7 @@ namespace X11App {
         helperValidateDrawingArgs(winId, x - radius, y - radius, x + radius, y + radius);
         const Window activeWindow = m_Windows.at(winId);
 
-        GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
+        const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
         XSetForeground(m_Display, gc, color.pixel);
         XFillArc(m_Display, activeWindow, gc, x - radius, y - radius, radius * 2, radius * 2, 0, 360 * 64);
 
@@ -120,7 +120,7 @@ namespace X11App {
         if (text.empty() || text.size() >= INT_MAX) return;
         const Window activeWindow = m_Windows.at(winId);
 
-        GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
+        const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
 
         const Font fontObj = XLoadFont(m_Display, fontStr.data());
         XSetFont(m_Display, gc, fontObj);
@@ -135,7 +135,7 @@ namespace X11App {
     void App::drawPolygon(const int winId, const XColor &color, std::vector<XPoint> &points) const {
         helperValidateDrawingArgs(winId, 0, 0, 0, 0);
         const Window activeWindow = m_Windows.at(winId);
-        if (points.size() < 3) throw std::runtime_error("A polygon must have at least 3 points");
+        if (points.size() < 3 || points.size() > INT_MAX) throw std::runtime_error("A polygon must have at least 3 points");
 
 #if DEBUG
         // todo: look into better handling of validation
@@ -146,7 +146,7 @@ namespace X11App {
 
         GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
         XSetForeground(m_Display, gc, color.pixel);
-        XFillPolygon(m_Display, activeWindow, gc, points.data(), points.size(), Convex, CoordModeOrigin);
+        XFillPolygon(m_Display, activeWindow, gc, points.data(), static_cast<int>(points.size()), Convex, CoordModeOrigin);
 
         XFreeGC(m_Display, gc);
     }
@@ -216,7 +216,7 @@ namespace X11App {
     // |                    Misc                     |
     // |*********************************************|
 
-    void App::cleanup() const {
+    App::~App() {
 # if DEBUG
         std::cout << "Cleaning up " << m_Windows.size() << " windows" << std::endl;
 # endif

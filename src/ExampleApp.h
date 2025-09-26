@@ -12,14 +12,20 @@ namespace ExampleApp {
         POPUP_MENU = 2,
     };
 
+    struct Player {
+        XPoint pos;
+        int size;
+    };
+
     class ExampleApp final : public X11App::App {
         friend App;
+        Player player;
 
         explicit ExampleApp(Display *display)
-            : App(display) {
+            : App(display), player({100, 100}, 20) {
         }
 
-        void handleExpose(const XExposeEvent &xexpose, const XPoint &playerPos);
+        void handleExpose(const XExposeEvent &event) override;
 
     public:
         void run() override;
