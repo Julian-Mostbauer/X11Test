@@ -39,8 +39,7 @@ namespace X11App {
     void App::windowClose(const int winId) noexcept {
 #if DEBUG
         if (!m_Windows.contains(winId)) {
-            std::cout << "Trying to close non-existing window ID " << winId << std::endl;
-            __builtin_trap();
+            debug_trap("Trying to close non-existing window ID %d", winId);
         }
 #endif
         // silently ignore
@@ -153,6 +152,67 @@ namespace X11App {
     }
 
     // |*********************************************|
+    // |               Event Handling                |
+    // |*********************************************|
+
+    void App::handleEvent(const XEvent &event) {
+        switch (event.type) {
+            case Expose: handleExpose(event.xexpose);
+                break;
+            case KeyPress: handleKeyPress(event.xkey);
+                break;
+            case KeyRelease: handleKeyRelease(event.xkey);
+                break;
+            case ButtonPress: handleButtonPress(event.xbutton);
+                break;
+            case ButtonRelease: handleButtonRelease(event.xbutton);
+                break;
+            case MotionNotify: handleMotionNotify(event.xmotion);
+                break;
+            case EnterNotify: handleEnterNotify(event.xcrossing);
+                break;
+            case LeaveNotify: handleLeaveNotify(event.xcrossing);
+                break;
+            case FocusIn: handleFocusIn(event.xfocus);
+                break;
+            case FocusOut: handleFocusOut(event.xfocus);
+                break;
+            case ClientMessage: handleClientMessage(event.xclient);
+                break;
+            case MappingNotify: handleMappingNotify(event.xmapping);
+                break;
+            case ConfigureNotify: handleConfigureNotify(event.xconfigure);
+                break;
+            case UnmapNotify: handleUnmapNotify(event.xunmap);
+                break;
+            case MapNotify: handleMapNotify(event.xmap);
+                break;
+            case DestroyNotify: handleDestroyNotify(event.xdestroywindow);
+                break;
+            case ReparentNotify: handleReparentNotify(event.xreparent);
+                break;
+            case PropertyNotify: handlePropertyNotify(event.xproperty);
+                break;
+            case SelectionClear: handleSelectionClear(event.xselectionclear);
+                break;
+            case SelectionRequest: handleSelectionRequest(event.xselectionrequest);
+                break;
+            case SelectionNotify: handleSelectionNotify(event.xselection);
+                break;
+            case ColormapNotify: handleColormapNotify(event.xcolormap);
+                break;
+            case VisibilityNotify: handleVisibilityNotify(event.xvisibility);
+                break;
+            case NoExpose: handleNoExpose(event.xnoexpose);
+                break;
+            case GraphicsExpose: handleGraphicsExpose(event.xgraphicsexpose);
+                break;
+            default: debug_trap("Unknown event type received");
+                break;
+        }
+    }
+
+    // |*********************************************|
     // |                    Misc                     |
     // |*********************************************|
 
@@ -185,8 +245,9 @@ namespace X11App {
                     << ", trying to draw between (" << x1 << "," << y1 << ") and "
                     << "(" << x2 << "," << y2 << ")"
                     << std::endl;
-            std::cout << "Trap call at: Line" << __LINE__ + 1 << " in " << __FILE__ << std::endl;
-            __builtin_trap();
+            debug_trap(
+                "Warning: Drawing outside of window bounds! Details:\n---\nWindow ID: %d\nTop-left point: (%d,%d)\nBottom-right point: (%d, %d)\n---",
+                winId, x1, y1, x2, y2);
         }
 #endif
     }

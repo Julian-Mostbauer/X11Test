@@ -4,10 +4,13 @@
 
 #ifndef X11TEST_APP_H
 #define X11TEST_APP_H
+#include <iostream>
 #include <map>
 #include <stdexcept>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <X11/XKBlib.h>
 #include <X11/Xatom.h>
 #include <vector>
 
@@ -62,6 +65,40 @@ namespace X11App {
 
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
 
+        // |*********************************************|
+        // |                Event Handling               |
+        // |*********************************************|
+        void handleEvent(const XEvent &event);
+
+        /// Template macro to define event handler functions for X11 events. Default implementation simply calls debug_trap.
+#define HANDLE_EVENT_FUNC_TEMPLATE(EVENT_NAME, TYPE_NAME) virtual void handle##EVENT_NAME(const X##TYPE_NAME##Event &event) { debug_trap("Unhandled " #EVENT_NAME " event for window ");};
+
+        HANDLE_EVENT_FUNC_TEMPLATE(Expose, Expose)
+        HANDLE_EVENT_FUNC_TEMPLATE(KeyPress, Key)
+        HANDLE_EVENT_FUNC_TEMPLATE(KeyRelease, Key)
+        HANDLE_EVENT_FUNC_TEMPLATE(ButtonPress, Button)
+        HANDLE_EVENT_FUNC_TEMPLATE(ButtonRelease, Button)
+        HANDLE_EVENT_FUNC_TEMPLATE(MotionNotify, Motion)
+        HANDLE_EVENT_FUNC_TEMPLATE(EnterNotify, EnterWindow)
+        HANDLE_EVENT_FUNC_TEMPLATE(LeaveNotify, LeaveWindow)
+        HANDLE_EVENT_FUNC_TEMPLATE(FocusIn, FocusIn)
+        HANDLE_EVENT_FUNC_TEMPLATE(FocusOut, FocusOut)
+        HANDLE_EVENT_FUNC_TEMPLATE(ClientMessage, ClientMessage)
+        HANDLE_EVENT_FUNC_TEMPLATE(MappingNotify, Mapping)
+        HANDLE_EVENT_FUNC_TEMPLATE(ConfigureNotify, Configure)
+        HANDLE_EVENT_FUNC_TEMPLATE(UnmapNotify, Unmap)
+        HANDLE_EVENT_FUNC_TEMPLATE(MapNotify, Map)
+        HANDLE_EVENT_FUNC_TEMPLATE(DestroyNotify, DestroyWindow)
+        HANDLE_EVENT_FUNC_TEMPLATE(ReparentNotify, Reparent)
+        HANDLE_EVENT_FUNC_TEMPLATE(PropertyNotify, Property)
+        HANDLE_EVENT_FUNC_TEMPLATE(SelectionClear, SelectionClear)
+        HANDLE_EVENT_FUNC_TEMPLATE(SelectionRequest, SelectionRequest)
+        HANDLE_EVENT_FUNC_TEMPLATE(SelectionNotify, Selection)
+        HANDLE_EVENT_FUNC_TEMPLATE(ColormapNotify, Colormap)
+        HANDLE_EVENT_FUNC_TEMPLATE(VisibilityNotify, Visibility)
+        HANDLE_EVENT_FUNC_TEMPLATE(NoExpose, NoExpose)
+        HANDLE_EVENT_FUNC_TEMPLATE(GraphicsExpose, GraphicsExpose)
+#undef HANDLE_EVENT_FUNC_TEMPLATE
 
         // |*********************************************|
         // |                    Misc                     |
@@ -94,6 +131,33 @@ namespace X11App {
          * @param y2 Bottom right Y position
          */
         void helperValidateDrawingArgs(int winId, u16 x1, u16 y1, u16 x2, u16 y2) const;
+
+        /// Triggers a debug trap if DEBUG is defined.
+        /// @param message Optional message to print before trapping.
+        static void debug_trap(const char *message = nullptr) {
+#if DEBUG
+            if (message) std::cout << message << std::endl;
+            __builtin_trap();
+#endif
+        }
+
+        /// Triggers a debug trap if DEBUG is defined, after formatting a message with printf-style formatting.
+        /// @tparam buffSize Size of the internal buffer used for formatting the message. Default is 512.
+        /// @tparam Args Variadic template parameters for the format arguments.
+        /// @param format The format string, similar to printf.
+        /// @param args The arguments to format into the string.
+        template<size_t buffSize = 512, typename... Args>
+        static void debug_trap(const char *format, Args &&... args) {
+#if DEBUG
+            if (format) {
+                char buffer[buffSize];
+                // does not use std::format so it can be used outside constexpr
+                std::snprintf(buffer, sizeof(buffer), format, std::forward<Args>(args)...);
+                std::cout << buffer << std::endl;
+            }
+            __builtin_trap();
+#endif
+        }
 
     public:
         /**
