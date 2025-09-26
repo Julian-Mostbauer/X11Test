@@ -8,11 +8,14 @@
 #include <iostream>
 #include <ranges>
 #include "../core/EventMask.h"
+#include <set>
+#include <unistd.h>
 
 using X11App::EventMask;
 using X11App::App;
 using X11App::FontDescriptor;
 
+// todo: create separate thread for input handling
 namespace ExampleApp {
     constexpr int playerSize = 20;
 
@@ -20,52 +23,56 @@ namespace ExampleApp {
         XPoint playerPos = {50, 50};
 
         // create main window
-        const auto defaultMask = EventMask().useKeyPressMask().useExposureMask().mask;
+        const auto defaultMask = EventMask().useKeyPressMask().useKeyReleaseMask().useExposureMask().mask;
         windowOpen(MAIN_WINDOW, 100, 100, 550, 300, defaultMask, "Test Window 1");
 
-        // event loop
+        std::set<KeySym> pressedKeys; // todo: write wrapper for this
+
         while (true) {
-            constexpr short stepSize = 10;
             XEvent event;
-            XNextEvent(m_Display, &event);
             bool needsRedraw = false;
             const auto winAttr = windowGetAttributes(MAIN_WINDOW);
 
-            switch (event.type) {
-                case Expose:
-                    handleExpose(event.xexpose, playerPos);
-                    break;
-                case KeyPress:
-                    if (keyCheckEqual(event.xkey, XK_Escape)) return;
-
-                    if (keyCheckEqual(event.xkey, XK_Left)) {
-                        playerPos.x = std::max(playerPos.x - stepSize, playerSize);
-                        needsRedraw = true;
+            while (XPending(m_Display)) {
+                XNextEvent(m_Display, &event);
+                switch (event.type) {
+                    case Expose:
+                        handleExpose(event.xexpose, playerPos);
+                        break;
+                    case KeyPress: {
+                        KeySym sym = XLookupKeysym(&event.xkey, 0);
+                        if (sym == XK_Escape) return;
+                        pressedKeys.insert(sym);
+                        break;
                     }
-
-                    if (keyCheckEqual(event.xkey, XK_Right)) {
-                        playerPos.x = std::min(playerPos.x + stepSize, winAttr.width-playerSize);
-                        needsRedraw = true;
+                    case KeyRelease: {
+                        KeySym sym = XLookupKeysym(&event.xkey, 0);
+                        pressedKeys.erase(sym);
+                        break;
                     }
-
-                    if (keyCheckEqual(event.xkey, XK_Up)) {
-                        playerPos.y = std::max(playerPos.y - stepSize, playerSize);
-                        needsRedraw = true;
-                    }
-
-                    if (keyCheckEqual(event.xkey, XK_Down)) {
-                        playerPos.y = std::min(playerPos.y + stepSize, winAttr.height-playerSize);
-                        needsRedraw = true;
-                    }
-
-                    break;
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
 
+            // Movement logic
+            constexpr short stepSize = 10;
+            int dx = 0, dy = 0;
+            if (pressedKeys.contains(XK_Left)) dx -= stepSize;
+            if (pressedKeys.contains(XK_Right)) dx += stepSize;
+            if (pressedKeys.contains(XK_Up)) dy -= stepSize;
+            if (pressedKeys.contains(XK_Down)) dy += stepSize;
+
+            if (dx != 0 || dy != 0) {
+                playerPos.x = std::clamp(playerPos.x + dx, playerSize, winAttr.width - playerSize);
+                playerPos.y = std::clamp(playerPos.y + dy, playerSize, winAttr.height - playerSize);
+                needsRedraw = true;
+            }
+
+            usleep(16000); // ~60 FPS // todo: replace with proper timing mechanism
             if (needsRedraw) {
                 windowClear(MAIN_WINDOW, true);
-                handleExpose(XExposeEvent{.type = Expose, .count = 0}, playerPos); // force redraw todo: better way?
+                handleExpose(XExposeEvent{.type = Expose, .count = 0}, playerPos);
             }
         }
     }
