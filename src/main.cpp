@@ -1,6 +1,8 @@
-#include "../core/App.h"
-#include "ExampleApp.h"
 #include <iostream>
+
+#include "ExampleApp.h"
+#include "../core/App.h"
+#include "allocTracker.h"
 
 int main() {
 #if DEBUG
@@ -11,9 +13,11 @@ int main() {
     try {
         const auto app = X11App::App::Create<ExampleApp::ExampleApp>();
         app->run();
-        return 0;
     } catch (const std::exception &e) {
         fprintf(stderr, "Error: %s\n", e.what());
-        return 1;
     }
+#if TRACK_ALLOCATIONS
+    printAllocStats();
+#endif
+    return 0;
 }

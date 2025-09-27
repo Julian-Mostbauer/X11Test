@@ -18,7 +18,7 @@
 
 using u16 = unsigned short;
 using PixelPos = unsigned short;
-using str = std::string;
+using str = std::string_view;
 
 namespace X11App {
     class App {
@@ -53,16 +53,16 @@ namespace X11App {
         /// Clear the contents of the specified window. Optionally flush the display after clearing.
         /// @param winId The ID of the window to clear.
         /// @param flush If true, flush the display after clearing. Flushing ensures that the clear operation is sent to the X server immediately.
-        void windowClear(int winId, bool flush) const;
+        void windowClear(int winId, bool flush) const noexcept;
 
         /// Force a redraw of all windows by calling handleExpose with an empty event.
         /// @param winId The ID of the window to redraw.
-        void windowForceRedraw(int winId);
+        void windowForceRedraw(int winId) noexcept;
 
         /// Check if a window with the specified ID is currently open.
         /// @param winId The ID of the window to check.
         /// @return True if the window is open, false otherwise.
-        [[nodiscard]] bool windowCheckOpen(int winId) const;
+        [[nodiscard]] bool windowCheckOpen(int winId) const noexcept;
 
         /// Get the attributes of the specified window.
         /// @param winId The ID of the window to get attributes for.
@@ -106,8 +106,7 @@ namespace X11App {
         /// @param y The Y position of the top-left corner of the text.
         /// @param fontStr The X-Logical-Font-Description of the font.
         /// @param text The text to draw.
-        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, const str &fontStr,
-                      const str &text) const;
+        void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, str fontStr, str text) const;
 
         /// Draw a filled polygon on the specified window.
         /// @param winId The ID of the window to draw on.

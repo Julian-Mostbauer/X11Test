@@ -10,6 +10,9 @@
 #include <ranges>
 #include <stdexcept>
 
+#define QUIT_EARLY_WITH_DEBUG_TRAP(ASSERTION, MSG, ...)  if (ASSERTION) return debug_trap(MSG, __VA_ARGS__); // silently ignore
+
+
 
 namespace X11App {
     // |*********************************************|
@@ -23,7 +26,7 @@ namespace X11App {
         std::cout << "Creating window ID " << winId << " at (" << x << "," << y << ") with size " << width << "x"
                 << height << " titled \"" << title << "\"" << std::endl;
 #endif
-        if (m_Windows.contains(winId))
+        if (windowCheckOpen(winId))
             throw std::runtime_error("Window ID already exists");
 
         const Window window = XCreateSimpleWindow(m_Display, RootWindow(m_Display, m_ScreenId), x, y, width, height, 1,
@@ -37,26 +40,24 @@ namespace X11App {
     }
 
     void App::windowClose(const int winId) noexcept {
-#if DEBUG
-        if (!m_Windows.contains(winId)) {
-            debug_trap("Trying to close non-existing window ID %d", winId);
-        }
-#endif
-        // silently ignore
-        if (m_Windows.contains(winId)) {
-            XDestroyWindow(m_Display, m_Windows[winId]);
-            m_Windows.erase(winId);
-        }
+        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force close a non-existing window ID %d", winId)
+
+        XDestroyWindow(m_Display, m_Windows[winId]);
+        m_Windows.erase(winId);
     }
 
-    void App::windowClear(const int winId, const bool flush) const {
+    void App::windowClear(const int winId, const bool flush) const noexcept {
+        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force clear a non-existing window ID %d", winId)
+
         XClearWindow(m_Display, m_Windows.at(winId));
         if (flush) XFlush(m_Display);
     }
 
-    void App::windowForceRedraw(const int winId) {
+    void App::windowForceRedraw(const int winId) noexcept {
+        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force redraw of non-existing window ID %d",
+                                   winId)
+
         const Window activeWindow = m_Windows.at(winId);
-        if (!activeWindow) return;
 
         auto emptyEvent = XExposeEvent{
             .type = Expose, .serial = 0, .send_event = False, .display = m_Display,
@@ -66,11 +67,13 @@ namespace X11App {
         handleExpose(emptyEvent);
     }
 
-    bool App::windowCheckOpen(const int winId) const {
+    bool App::windowCheckOpen(const int winId) const noexcept {
         return m_Windows.contains(winId);
     }
 
     XWindowAttributes App::windowGetAttributes(const int winId) const {
+        if (!windowCheckOpen(winId)) throw std::runtime_error("No window with id " + std::to_string(winId) + " exits");
+
         const Window activeWindow = m_Windows.at(winId);
         XWindowAttributes attrs{};
         XGetWindowAttributes(m_Display, activeWindow, &attrs);
@@ -119,9 +122,8 @@ namespace X11App {
         XFreeGC(m_Display, gc);
     }
 
-    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
-                       const str &fontStr,
-                       const str &text) const {
+    void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y, const str fontStr,
+                       const str text) const {
         helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20); // todo: better text size estimation
         if (text.empty() || text.size() >= INT_MAX) return;
         const Window activeWindow = m_Windows.at(winId);
@@ -145,14 +147,7 @@ namespace X11App {
             throw std::runtime_error(
                 "A polygon must have at least 3 points");
 
-#if DEBUG
-        // todo: look into better handling of validation
-        for (const auto &[x, y]: points) {
-            helperValidateDrawingArgs(winId, x, y, x, y);
-        }
-#endif
-
-        GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
+        const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
         XSetForeground(m_Display, gc, color.pixel);
         XFillPolygon(m_Display, activeWindow, gc, points.data(), static_cast<int>(points.size()), Convex,
                      CoordModeOrigin);

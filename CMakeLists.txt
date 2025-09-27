@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.0)
 project(X11Test)
 
 set(CMAKE_CXX_STANDARD 26)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -Wall -Wextra -Wpedantic -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -DTRACK_ALLOCATIONS=0 -Wall -Wextra -Wpedantic -Werror")
 
 add_executable(X11Test src/main.cpp
         core/App.cpp
@@ -10,5 +10,6 @@ add_executable(X11Test src/main.cpp
         src/ExampleApp.cpp
         src/ExampleApp.h
         core/FontDescriptor.h
-        core/EventMask.h)
+        core/EventMask.h
+        src/allocTracker.h)
 target_link_libraries(X11Test PRIVATE X11)

@@ -4,6 +4,7 @@
 
 #ifndef X11TEST_TESTAPP_H
 #define X11TEST_TESTAPP_H
+#include <unordered_map>
 #include <unordered_set>
 
 #include "../core/App.h"
@@ -20,12 +21,25 @@ namespace ExampleApp {
         int stepSize;
     };
 
+    class KeyStateManager {
+        std::unordered_map<KeySym, bool> pressedKeys;
+
+    public:
+        void reserve(const size_t size) { pressedKeys.reserve(size); }
+
+        void setKeyPressed(const KeySym key) { pressedKeys[key] = true; }
+
+        void setKeyReleased(const KeySym key) { pressedKeys[key] = false; }
+
+        bool isKeyPressed(const KeySym key) const { return pressedKeys.contains(key) && pressedKeys.at(key); }
+    };
+
     class ExampleApp final : public X11App::App {
         friend App;
 
         static long defaultMask;
 
-        std::unordered_set<KeySym> pressedKeys;
+        KeyStateManager keyStateManager;
         Player player;
         bool running;
 

@@ -36,14 +36,14 @@ namespace ExampleApp {
     }
 
     void ExampleApp::updatePopupMenu() {
-        if (pressedKeys.contains(XK_space)) {
+        if (keyStateManager.isKeyPressed(XK_space)) {
             if (!windowCheckOpen(POPUP_MENU)) {
                 windowOpen(POPUP_MENU, 700, 100, 600, 500, defaultMask, "Popup Menu");
                 windowForceRedraw(POPUP_MENU);
             } else {
                 windowClose(POPUP_MENU);
             }
-            pressedKeys.erase(XK_space); // prevent repeated toggling
+            keyStateManager.setKeyReleased(XK_space); // prevent repeated toggling
         }
     }
 
@@ -52,10 +52,10 @@ namespace ExampleApp {
         bool needsRedraw = false;
         int dx = 0, dy = 0;
 
-        if (pressedKeys.contains(XK_Left)) dx -= player.stepSize;
-        if (pressedKeys.contains(XK_Right)) dx += player.stepSize;
-        if (pressedKeys.contains(XK_Up)) dy -= player.stepSize;
-        if (pressedKeys.contains(XK_Down)) dy += player.stepSize;
+        if (keyStateManager.isKeyPressed(XK_Left)) dx -= player.stepSize;
+        if (keyStateManager.isKeyPressed(XK_Right)) dx += player.stepSize;
+        if (keyStateManager.isKeyPressed(XK_Up)) dy -= player.stepSize;
+        if (keyStateManager.isKeyPressed(XK_Down)) dy += player.stepSize;
 
         // Normalize diagonal movement to maintain consistent speed
         if (dx != 0 && dy != 0) {
@@ -74,14 +74,14 @@ namespace ExampleApp {
 
     void ExampleApp::handleKeyPress(XKeyEvent &event) {
         const KeySym sym = XLookupKeysym(&event, 0);
-        pressedKeys.insert(sym);
+        keyStateManager.setKeyPressed(sym);
 
         if (sym == XK_Escape) running = false;
     }
 
     void ExampleApp::handleKeyRelease(XKeyEvent &event) {
         const KeySym sym = XLookupKeysym(&event, 0);
-        pressedKeys.erase(sym);
+        keyStateManager.setKeyReleased(sym);
     }
 
     void ExampleApp::handleExpose(XExposeEvent &event) {
