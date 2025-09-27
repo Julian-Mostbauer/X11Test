@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -164,8 +165,6 @@ namespace X11App {
         // |                    Misc                     |
         // |*********************************************|
 
-        virtual ~App();
-
         /// Check if the given XKeyEvent corresponds to the specified KeySym.
         /// @param event The XKeyEvent to check.
         /// @param XK_Key The KeySym to compare against (e.g., XK_Escape).
@@ -220,21 +219,23 @@ namespace X11App {
         }
 
     public:
+        virtual ~App();
+
         /**
          * A static factory method to create an instance of a class derived from App. Creates and opens a connection to the X server.
          *
          * @tparam TDerived The type of the derived class that inherits from App. This class must also friend App.
-         * @return A pointer to the newly created instance of TDerived.
+         * @return A unique_ptr to the created instance of TDerived.
          * @throws std::runtime_error if the display cannot be opened.
          */
         template<class TDerived>
-        static App *Create() {
+        static std::unique_ptr<App> Create() {
             static_assert(std::is_base_of_v<App, TDerived>, "Type TDerived must derive from App");
 
             Display *display = XOpenDisplay(nullptr);
             if (!display) throw std::runtime_error("Cannot open display");
 
-            return new TDerived(display);
+            return std::unique_ptr<App>(new TDerived(display));
         }
 
         /// The main application loop. Must be implemented by derived classes.

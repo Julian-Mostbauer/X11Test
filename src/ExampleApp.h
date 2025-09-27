@@ -57,6 +57,8 @@ namespace ExampleApp {
 
         void handleKeyRelease(XKeyEvent &event) override;
 
+        void handleButtonPress(XButtonEvent &event) override;
+
     public:
         void run() override;
     };

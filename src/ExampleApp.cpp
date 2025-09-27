@@ -84,6 +84,10 @@ namespace ExampleApp {
         keyStateManager.setKeyReleased(sym);
     }
 
+    void ExampleApp::handleButtonPress(XButtonEvent &event) {
+        App::handleButtonPress(event);
+    }
+
     void ExampleApp::handleExpose(XExposeEvent &event) {
         if (event.count != 0) return;
 

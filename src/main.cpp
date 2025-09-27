@@ -3,6 +3,7 @@
 #include "ExampleApp.h"
 #include "../core/App.h"
 #include "allocTracker.h"
+using X11App::App;
 
 int main() {
 #if DEBUG
@@ -11,7 +12,7 @@ int main() {
             << "====================================\n" << std::endl;
 #endif
     try {
-        const auto app = X11App::App::Create<ExampleApp::ExampleApp>();
+        const auto app = App::Create<ExampleApp::ExampleApp>();
         app->run();
     } catch (const std::exception &e) {
         fprintf(stderr, "Error: %s\n", e.what());

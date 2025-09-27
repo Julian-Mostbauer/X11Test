@@ -228,15 +228,6 @@ namespace X11App {
     // |                    Misc                     |
     // |*********************************************|
 
-    App::~App() {
-# if DEBUG
-        std::cout << "Cleaning up " << m_Windows.size() << " windows" << std::endl;
-# endif
-        for (const Window window: m_Windows | std::views::values) XDestroyWindow(m_Display, window);
-        if (m_Display) XCloseDisplay(m_Display);
-    }
-
-
     bool App::keyCheckEqual(const XKeyEvent &event, const KeySym XK_Key) {
         return XLookupKeysym(const_cast<XKeyEvent *>(&event), 0) == XK_Key;
     }
@@ -262,5 +253,13 @@ namespace X11App {
                 winId, x1, y1, x2, y2);
         }
 #endif
+    }
+
+    App::~App() {
+#if DEBUG
+        std::cout << "Cleaning up " << m_Windows.size() << " windows" << std::endl;
+#endif
+        for (const Window window: m_Windows | std::views::values) XDestroyWindow(m_Display, window);
+        if (m_Display) XCloseDisplay(m_Display);
     }
 }

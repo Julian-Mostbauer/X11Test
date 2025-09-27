@@ -47,6 +47,13 @@ inline void printAllocStats() {
     std::cout << "Frees: " << freeCount
             << ", total amount in Bytes: " << freeSum
             << ", average: " << static_cast<float>(freeSum) / static_cast<float>(freeCount) << std::endl;
+
+    if (allocSum != freeSum) {
+        std::cout << "Memory leak detected! Difference: " << (allocSum - freeSum) << " Bytes" << std::endl;
+    } else {
+        std::cout << "No memory leaks detected." << std::endl;
+    }
+    std::cout << "=============================" << std::endl;
 }
 
 #endif //X11TEST_ALLOCTRACKER_H
