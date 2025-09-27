@@ -37,8 +37,6 @@ namespace ExampleApp {
     class ExampleApp final : public X11App::App {
         friend App;
 
-        static long defaultMask;
-
         KeyStateManager keyStateManager;
         Player player;
         bool running;

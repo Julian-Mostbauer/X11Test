@@ -12,6 +12,7 @@
 
 #define QUIT_EARLY_WITH_DEBUG_TRAP(ASSERTION, MSG, ...)  if (ASSERTION) return debug_trap(MSG, __VA_ARGS__); // silently ignore
 
+#define REQUIRE_WINDOW(WIN_ID, MSG)  if (!windowCheckOpen(WIN_ID)) throw std::runtime_error(MSG);
 
 
 namespace X11App {
@@ -40,21 +41,21 @@ namespace X11App {
     }
 
     void App::windowClose(const int winId) noexcept {
-        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force close a non-existing window ID %d", winId)
+        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force close a non-existent window ID %d", winId)
 
         XDestroyWindow(m_Display, m_Windows[winId]);
         m_Windows.erase(winId);
     }
 
     void App::windowClear(const int winId, const bool flush) const noexcept {
-        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force clear a non-existing window ID %d", winId)
+        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force clear a non-existent window ID %d", winId)
 
         XClearWindow(m_Display, m_Windows.at(winId));
         if (flush) XFlush(m_Display);
     }
 
     void App::windowForceRedraw(const int winId) noexcept {
-        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force redraw of non-existing window ID %d",
+        QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force redraw of non-existent window ID %d",
                                    winId)
 
         const Window activeWindow = m_Windows.at(winId);
@@ -100,7 +101,8 @@ namespace X11App {
     void App::drawRectangle(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
                             const PixelPos width,
                             const PixelPos height) const {
-        helperValidateDrawingArgs(winId, x, y, x + width, y + height);
+        REQUIRE_WINDOW(winId, "Attempting to draw a rectangle on a non-existent window ID " + std::to_string(winId))
+
         const Window activeWindow = m_Windows.at(winId);
 
         const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
@@ -112,7 +114,8 @@ namespace X11App {
 
     void App::drawCircle(const int winId, const XColor &color, const PixelPos x, const PixelPos y,
                          const PixelPos radius) const {
-        helperValidateDrawingArgs(winId, x - radius, y - radius, x + radius, y + radius);
+        REQUIRE_WINDOW(winId, "Attempting to draw a circle on a non-existent window ID " + std::to_string(winId))
+
         const Window activeWindow = m_Windows.at(winId);
 
         const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
@@ -124,7 +127,8 @@ namespace X11App {
 
     void App::drawText(const int winId, const XColor &color, const PixelPos x, const PixelPos y, const str fontStr,
                        const str text) const {
-        helperValidateDrawingArgs(winId, x, y, x + text.size() * 10, y + 20); // todo: better text size estimation
+        REQUIRE_WINDOW(winId, "Attempting to draw text on a non-existent window ID " + std::to_string(winId))
+
         if (text.empty() || text.size() >= INT_MAX) return;
         const Window activeWindow = m_Windows.at(winId);
 
@@ -141,7 +145,8 @@ namespace X11App {
     }
 
     void App::drawPolygon(const int winId, const XColor &color, std::vector<XPoint> &points) const {
-        helperValidateDrawingArgs(winId, 0, 0, 0, 0);
+        REQUIRE_WINDOW(winId, "Attempting to draw a polygon on a non-existent window ID " + std::to_string(winId))
+
         const Window activeWindow = m_Windows.at(winId);
         if (points.size() < 3 || points.size() > INT_MAX)
             throw std::runtime_error(
@@ -230,29 +235,6 @@ namespace X11App {
 
     bool App::keyCheckEqual(const XKeyEvent &event, const KeySym XK_Key) {
         return XLookupKeysym(const_cast<XKeyEvent *>(&event), 0) == XK_Key;
-    }
-
-    // |*********************************************|
-    // |               Helper Functions              |
-    // |*********************************************|
-
-    void App::helperValidateDrawingArgs(const int winId, const PixelPos x1, const PixelPos y1, const PixelPos x2,
-                                        const PixelPos y2) const {
-        if (!m_Windows.contains(winId))
-            throw std::runtime_error("Window ID does not exist: " + std::to_string(winId));
-#if DEBUG
-        if (const auto attrs = windowGetAttributes(winId);
-            x1 > attrs.width || y1 > attrs.height || x2 > attrs.width || y2 > attrs.height) {
-            std::cout << "WARNING!!!\nTrying to draw outside of window(id:" << winId
-                    << ") bounds:\nWindow size is " << attrs.width << "x" << attrs.height
-                    << ", trying to draw between (" << x1 << "," << y1 << ") and "
-                    << "(" << x2 << "," << y2 << ")"
-                    << std::endl;
-            debug_trap(
-                "Warning: Drawing outside of window bounds! Details:\n---\nWindow ID: %d\nTop-left point: (%d,%d)\nBottom-right point: (%d, %d)\n---",
-                winId, x1, y1, x2, y2);
-        }
-#endif
     }
 
     App::~App() {

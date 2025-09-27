@@ -176,21 +176,6 @@ namespace X11App {
         // |               Helper Functions              |
         // |*********************************************|
 
-        /**
-         * Helper function to validate drawing arguments:
-         *
-         * - NORMAL: will throw an exception if winId is invalid
-         *
-         * - DEBUG: will print error message and trap if drawing outside of window bounds
-         *
-         * @param winId ID of the window to draw on
-         * @param x1 Top left X position
-         * @param y1 Top left Y position
-         * @param x2 Bottom right X position
-         * @param y2 Bottom right Y position
-         */
-        void helperValidateDrawingArgs(int winId, u16 x1, u16 y1, u16 x2, u16 y2) const;
-
         /// Triggers a debug trap if DEBUG is defined.
         /// @param message Optional message to print before trapping.
         static void debug_trap(const char *message = nullptr) {

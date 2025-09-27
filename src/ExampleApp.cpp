@@ -15,7 +15,9 @@ using X11App::FontDescriptor;
 
 // todo: create separate thread for input handling
 namespace ExampleApp {
-    long ExampleApp::defaultMask = EventMask().useExposureMask().useKeyPressMask().useKeyReleaseMask().mask;
+    static long defaultMask = EventMask().useExposureMask().useKeyPressMask().useKeyReleaseMask().useButtonPressMask().mask;
+    static const auto defaultFont = FontDescriptor("helvetica", 150).toString();
+    static std::vector<XPoint> polygonPoints = {};
 
     void ExampleApp::run() {
         windowOpen(MAIN_WINDOW, 100, 100, 550, 300,
@@ -44,6 +46,12 @@ namespace ExampleApp {
                 windowClose(POPUP_MENU);
             }
             keyStateManager.setKeyReleased(XK_space); // prevent repeated toggling
+        }
+
+        if (keyStateManager.isKeyPressed(XK_c)) {
+            polygonPoints.clear();
+            drawText(POPUP_MENU, colorCreate(65535, 0, 0), 100, 50, defaultFont,
+                     "Cleared points - Press anywhere to start over");
         }
     }
 
@@ -85,7 +93,19 @@ namespace ExampleApp {
     }
 
     void ExampleApp::handleButtonPress(XButtonEvent &event) {
-        App::handleButtonPress(event);
+        // Example: Close popup menu on mouse click inside it
+        for (const auto &winId: m_Windows | std::views::keys) {
+            if (const auto win = m_Windows.at(winId); win != event.window || !windowCheckOpen(winId)) continue;
+
+            if (winId == POPUP_MENU) {
+                std::cout << event.x << ", " << event.y << std::endl;
+                const XPoint p = {static_cast<short>(event.x), static_cast<short>(event.y)};
+                polygonPoints.push_back(p);
+
+                windowClear(POPUP_MENU, true);
+                windowForceRedraw(POPUP_MENU);
+            }
+        }
     }
 
     void ExampleApp::handleExpose(XExposeEvent &event) {
@@ -104,14 +124,16 @@ namespace ExampleApp {
                 break;
                 case POPUP_MENU: {
                     const auto blue = colorCreate(0, 0, 65535);
+                    const auto red = colorCreate(65535, 0, 0);
 
-                    drawText(POPUP_MENU, blue, 50, 460, FontDescriptor("helvetica", 150).toString(),
-                             "This is a popup menu. Press SPACE to close.");
-                    drawRectangle(POPUP_MENU, blue, 20, 20, 200, 100);
-                    drawCircle(POPUP_MENU, blue, 300, 200, 75);
+                    drawText(POPUP_MENU, blue, 50, 100, defaultFont, "This is a popup menu. Press SPACE to close.");
+                    drawText(POPUP_MENU, blue, 50, 300, defaultFont, "Click anywhere to add points. Press C to clear.");
 
-                    std::vector<XPoint> triangle = {{400, 400}, {450, 300}, {500, 400}};
-                    drawPolygon(POPUP_MENU, blue, triangle);
+                    if (polygonPoints.size() >= 3) {
+                        drawPolygon(POPUP_MENU, blue, polygonPoints);
+                    } else {
+                        drawText(POPUP_MENU, red, 100, 400, defaultFont, "Not enough points to draw a polygon");
+                    }
                 }
                 break;
                 default: break;
