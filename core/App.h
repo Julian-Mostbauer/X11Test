@@ -115,6 +115,9 @@ namespace X11App {
         /// @param points A vector of XPoint structures defining the vertices of the polygon.
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
 
+        // todo: Make it possible to draw images https://stackoverflow.com/questions/6609281/how-to-draw-an-image-from-file-on-window-with-xlib
+        // void drawImage(int winId, int x, int y, const str path) const;
+
         // |*********************************************|
         // |                Event Handling               |
         // |*********************************************|
@@ -160,6 +163,12 @@ namespace X11App {
         HANDLE_EVENT_FUNC_TEMPLATE(NoExpose, NoExpose)
         HANDLE_EVENT_FUNC_TEMPLATE(GraphicsExpose, GraphicsExpose)
 #undef HANDLE_EVENT_FUNC_TEMPLATE
+
+        // |*********************************************|
+        // |                Sound System                 |
+        // |*********************************************|
+
+        // todo: playsound
 
         // |*********************************************|
         // |                    Misc                     |

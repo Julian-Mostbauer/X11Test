@@ -6,19 +6,10 @@
 
 #include <algorithm>
 #include <ranges>
-#include "../core/EventMask.h"
 #include <unistd.h>
-
-using X11App::EventMask;
-using X11App::App;
-using X11App::FontDescriptor;
 
 // todo: create separate thread for input handling
 namespace ExampleApp {
-    static long defaultMask = EventMask().useExposureMask().useKeyPressMask().useKeyReleaseMask().useButtonPressMask().mask;
-    static const auto defaultFont = FontDescriptor("helvetica", 150).toString();
-    static std::vector<XPoint> polygonPoints = {};
-
     void ExampleApp::run() {
         windowOpen(MAIN_WINDOW, 100, 100, 550, 300,
                    defaultMask, "Test Window 1");

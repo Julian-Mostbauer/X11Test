@@ -8,6 +8,8 @@
 #include <unordered_set>
 
 #include "../core/App.h"
+#include "../core/EventMask.h"
+
 
 namespace ExampleApp {
     enum TestAppWindows {
@@ -41,8 +43,14 @@ namespace ExampleApp {
         Player player;
         bool running;
 
+        std::vector<XPoint> polygonPoints;
+        const long defaultMask;
+        const std::string defaultFont;
+
         explicit ExampleApp(Display *display)
-            : App(display), player({100, 100}, 20, 10), running(true) {
+            : App(display), player({100, 100}, 20, 10), running(true), polygonPoints({}), defaultMask(
+                  X11App::EventMask().useExposureMask().useKeyPressMask().useKeyReleaseMask().
+                  useButtonPressMask().mask), defaultFont(X11App::FontDescriptor("helvetica", 150).toString()) {
         }
 
         bool updatePlayer();
