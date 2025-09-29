@@ -168,7 +168,7 @@ namespace X11App {
         // |                Sound System                 |
         // |*********************************************|
 
-        // todo: playsound
+        void soundPlayFile(str path) const;
 
         // |*********************************************|
         // |                    Misc                     |

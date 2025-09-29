@@ -20,6 +20,10 @@ namespace ExampleApp {
             updatePopupMenu();
             const auto needsRedraw = updatePlayer();
 
+            if (keyStateManager.isKeyPressed(XK_p)) {
+                soundPlayFile("/home/julian/Projects/X11Test/assets/explosion-42132.mp3");
+            }
+
             usleep(16000); // ~60 FPS // todo: replace with proper timing mechanism
             if (needsRedraw) {
                 windowClear(MAIN_WINDOW, true);

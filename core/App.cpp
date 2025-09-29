@@ -14,7 +14,7 @@
 
 #define REQUIRE_WINDOW(WIN_ID, MSG)  if (!windowCheckOpen(WIN_ID)) throw std::runtime_error(MSG);
 
-
+// https://www.mankier.com/
 namespace X11App {
     // |*********************************************|
     // |               Window Management             |
@@ -232,6 +232,19 @@ namespace X11App {
     // |*********************************************|
     // |                    Misc                     |
     // |*********************************************|
+
+    // temporary sound playing function using ffplay
+    // todo: use a proper sound library
+    void App::soundPlayFile(str path) const {
+        // check if ffplay is installed
+        if (system("which ffplay > /dev/null 2>&1") != 0) {
+            std::cerr << "ffplay is not installed. Please install ffmpeg to use sound playback." << std::endl;
+            return;
+        }
+
+        const auto command = std::format("ffplay -nodisp -autoexit {} &", path);
+        system(command.c_str());
+    }
 
     bool App::keyCheckEqual(const XKeyEvent &event, const KeySym XK_Key) {
         return XLookupKeysym(const_cast<XKeyEvent *>(&event), 0) == XK_Key;
