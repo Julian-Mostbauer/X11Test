@@ -187,7 +187,7 @@ namespace X11App {
 
         /// Triggers a debug trap if DEBUG is defined.
         /// @param message Optional message to print before trapping.
-        static void debug_trap(const char *message = nullptr) {
+        static void debug_trap(const char *message [[maybe_unused]] = nullptr) {
 #if DEBUG
             if (message) std::cout << message << std::endl;
             __builtin_trap();
@@ -200,7 +200,7 @@ namespace X11App {
         /// @param format The format string, similar to printf.
         /// @param args The arguments to format into the string.
         template<size_t buffSize = 512, typename... Args>
-        static void debug_trap(const char *format, Args &&... args) {
+        static void debug_trap(const char *format [[maybe_unused]], Args &&... args [[maybe_unused]]) {
 #if DEBUG
             if (format) {
                 char buffer[buffSize];

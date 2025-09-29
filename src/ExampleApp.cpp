@@ -17,6 +17,8 @@ namespace ExampleApp {
         while (running) {
             handleAllQueuedEvents();
 
+            if (!keyStateManager.stateChanged()) continue;
+
             updatePopupMenu();
             const auto needsRedraw = updatePlayer();
 
@@ -40,8 +42,8 @@ namespace ExampleApp {
             } else {
                 windowClose(POPUP_MENU);
             }
-            keyStateManager.setKeyReleased(XK_space); // prevent repeated toggling
         }
+        if (!windowCheckOpen(POPUP_MENU)) return; // only check for clear if popup is open
 
         if (keyStateManager.isKeyPressed(XK_c)) {
             polygonPoints.clear();
@@ -55,10 +57,10 @@ namespace ExampleApp {
         bool needsRedraw = false;
         int dx = 0, dy = 0;
 
-        if (keyStateManager.isKeyPressed(XK_Left)) dx -= player.stepSize;
-        if (keyStateManager.isKeyPressed(XK_Right)) dx += player.stepSize;
-        if (keyStateManager.isKeyPressed(XK_Up)) dy -= player.stepSize;
-        if (keyStateManager.isKeyPressed(XK_Down)) dy += player.stepSize;
+        if (keyStateManager.isKeyDown(XK_Left)) dx -= player.stepSize;
+        if (keyStateManager.isKeyDown(XK_Right)) dx += player.stepSize;
+        if (keyStateManager.isKeyDown(XK_Up)) dy -= player.stepSize;
+        if (keyStateManager.isKeyDown(XK_Down)) dy += player.stepSize;
 
         // Normalize diagonal movement to maintain consistent speed
         if (dx != 0 && dy != 0) {

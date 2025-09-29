@@ -25,16 +25,31 @@ namespace ExampleApp {
 
     class KeyStateManager {
         std::unordered_map<KeySym, bool> pressedKeys;
+        std::unordered_map<KeySym, bool> prevState;
 
     public:
-        void reserve(const size_t size) { pressedKeys.reserve(size); }
+        void reserve(const size_t size) { pressedKeys.reserve(size); prevState.reserve(size); }
 
         void setKeyPressed(const KeySym key) { pressedKeys[key] = true; }
 
         void setKeyReleased(const KeySym key) { pressedKeys[key] = false; }
 
-        bool isKeyPressed(const KeySym key) const { return pressedKeys.contains(key) && pressedKeys.at(key); }
+        // checks if a key is currently held down
+        bool isKeyDown(const KeySym key) const { return pressedKeys.contains(key) && pressedKeys.at(key); }
+
+        // checks if a key was pressed (transition from not pressed to pressed)
+        bool isKeyPressed(const KeySym key) {
+            const bool currentlyDown = isKeyDown(key);
+            const bool wasDown = prevState.contains(key) && prevState.at(key);
+            prevState[key] = currentlyDown;
+            return currentlyDown && !wasDown;
+        }
+
+        bool stateChanged() const {
+            return pressedKeys != prevState;
+        }
     };
+
 
     class ExampleApp final : public X11App::App {
         friend App;
