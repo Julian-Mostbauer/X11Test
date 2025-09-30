@@ -12,6 +12,8 @@
 
 #define QUIT_EARLY_WITH_DEBUG_TRAP(ASSERTION, MSG, ...)  if (ASSERTION) return debug_trap(MSG, __VA_ARGS__); // silently ignore
 
+
+
 #define REQUIRE_WINDOW(WIN_ID, MSG)  if (!windowCheckOpen(WIN_ID)) throw std::runtime_error(MSG);
 
 // https://www.mankier.com/
@@ -242,7 +244,13 @@ namespace X11App {
             return;
         }
 
-        const auto command = std::format("ffplay -nodisp -autoexit {} &", path);
+        if (access(path.data(), F_OK) != 0) {
+            std::cerr << "Sound file does not exist: " << path << std::endl;
+            return;
+        }
+
+        const auto command = std::format("ffplay -nodisp -autoexit '{}' </dev/null >/dev/null 2>&1 &", path);
+
         system(command.c_str());
     }
 
