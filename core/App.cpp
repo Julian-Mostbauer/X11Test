@@ -90,6 +90,15 @@ namespace X11App {
         return std::nullopt;
     }
 
+    void App::windowProcessRedrawQueue() noexcept {
+        while (!m_RedrawQueue.empty()) {
+            if (const auto winId = m_RedrawQueue.front(); windowCheckOpen(winId)) {
+                windowClear(winId, true);
+                windowForceRedraw(winId);
+            }
+            m_RedrawQueue.pop();
+        };
+    }
 
     //|*********************************************|
     //|                  Drawing                    |

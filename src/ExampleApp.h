@@ -4,8 +4,6 @@
 
 #ifndef X11TEST_TESTAPP_H
 #define X11TEST_TESTAPP_H
-#include <unordered_map>
-#include <unordered_set>
 
 #include "../core/App.h"
 #include "../core/EventMask.h"
@@ -39,7 +37,8 @@ namespace ExampleApp {
                   useButtonPressMask().mask), defaultFont(X11App::FontDescriptor("helvetica", 150).toString()) {
         }
 
-        bool updatePlayer();
+
+        void updatePlayer();
 
         void updatePopupMenu();
 
@@ -48,6 +47,7 @@ namespace ExampleApp {
         void handleButtonPress(XButtonEvent &event) override;
 
     public:
+
         void run() override;
     };
 }

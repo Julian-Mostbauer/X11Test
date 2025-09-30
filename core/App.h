@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <queue>
 #include <stdexcept>
 #include <vector>
 
@@ -28,6 +29,7 @@ namespace X11App {
         Display *m_Display = nullptr;
         std::map<int, Window> m_Windows;
         KeyStateManager m_KeyStateManager;
+        std::queue<int> m_RedrawQueue;
         int m_ScreenId;
 
         explicit App(Display *display) : m_Display(display), m_Windows({}),
@@ -76,6 +78,14 @@ namespace X11App {
         /// @param window The raw Window handle to look up.
         /// @return An optional containing the window ID if found, or std::nullopt if not found.
         [[nodiscard]] std::optional<int> windowRawToId(Window window) const;
+
+        /// Schedule a redraw of the specified window by adding it to the redraw queue.
+        /// The actual redraw will be processed later when windowProcessRedrawQueue is called.
+        /// @param winId The ID of the window to schedule for redraw.
+        inline void windowScheduleRedraw(const int winId) noexcept { m_RedrawQueue.push(winId); };
+
+        /// Process all windows in the redraw queue by calling windowClear and windowForceRedraw on each.
+        void windowProcessRedrawQueue() noexcept;
 
         //|*********************************************|
         //|                  Drawing                    |

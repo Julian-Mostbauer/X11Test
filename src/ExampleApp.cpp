@@ -24,15 +24,12 @@ namespace ExampleApp {
             }
 
             updatePopupMenu();
-            const auto needsRedraw = updatePlayer();
+            updatePlayer();
 
             if (keyIsPressed(XK_p)) soundPlayFile("../assets/explosion-42132.mp3");
 
             usleep(16000); // ~60 FPS // todo: replace with proper timing mechanism
-            if (needsRedraw) {
-                windowClear(MAIN_WINDOW, true);
-                windowForceRedraw(MAIN_WINDOW);
-            }
+            windowProcessRedrawQueue();
         }
     }
 
@@ -54,7 +51,7 @@ namespace ExampleApp {
         }
     }
 
-    bool ExampleApp::updatePlayer() {
+    void ExampleApp::updatePlayer() {
         const auto winAttr = windowGetAttributes(MAIN_WINDOW);
         bool needsRedraw = false;
         int dx = 0, dy = 0;
@@ -76,7 +73,7 @@ namespace ExampleApp {
             needsRedraw = true;
         }
 
-        return needsRedraw;
+        if (needsRedraw) windowScheduleRedraw(MAIN_WINDOW);
     }
 
     void ExampleApp::handleButtonPress(XButtonEvent &event) {
@@ -88,8 +85,7 @@ namespace ExampleApp {
             const XPoint p = {static_cast<short>(event.x), static_cast<short>(event.y)};
             polygonPoints.push_back(p);
 
-            windowClear(POPUP_MENU, true);
-            windowForceRedraw(POPUP_MENU);
+            windowScheduleRedraw(POPUP_MENU);
         }
     }
 
@@ -112,11 +108,8 @@ namespace ExampleApp {
                 drawText(POPUP_MENU, blue, 50, 100, defaultFont, "This is a popup menu. Press SPACE to close.");
                 drawText(POPUP_MENU, blue, 50, 300, defaultFont, "Click anywhere to add points. Press C to clear.");
 
-                if (polygonPoints.size() >= 3) {
-                    drawPolygon(POPUP_MENU, blue, polygonPoints);
-                } else {
-                    drawText(POPUP_MENU, red, 100, 400, defaultFont, "Not enough points to draw a polygon");
-                }
+                if (polygonPoints.size() >= 3) drawPolygon(POPUP_MENU, blue, polygonPoints);
+                else drawText(POPUP_MENU, red, 100, 400, defaultFont, "Not enough points to draw a polygon");
             }
             break;
             default: break;
