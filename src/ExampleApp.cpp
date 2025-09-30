@@ -17,12 +17,16 @@ namespace ExampleApp {
         while (running) {
             handleAllQueuedEvents();
 
-            if (!keyStateManager.stateChanged()) continue;
+            if (!m_KeyStateManager.stateChanged()) continue;
+            if (m_KeyStateManager.isKeyPressed(XK_Escape)) {
+                running = false;
+                continue;
+            }
 
             updatePopupMenu();
             const auto needsRedraw = updatePlayer();
 
-            if (keyStateManager.isKeyPressed(XK_p)) {
+            if (m_KeyStateManager.isKeyPressed(XK_p)) {
                 soundPlayFile("/home/julian/Projects/X11Test/assets/explosion-42132.mp3");
             }
 
@@ -35,7 +39,7 @@ namespace ExampleApp {
     }
 
     void ExampleApp::updatePopupMenu() {
-        if (keyStateManager.isKeyPressed(XK_space)) {
+        if (m_KeyStateManager.isKeyPressed(XK_space)) {
             if (!windowCheckOpen(POPUP_MENU)) {
                 windowOpen(POPUP_MENU, 700, 100, 600, 500, defaultMask, "Popup Menu");
                 windowForceRedraw(POPUP_MENU);
@@ -45,7 +49,7 @@ namespace ExampleApp {
         }
         if (!windowCheckOpen(POPUP_MENU)) return; // only check for clear if popup is open
 
-        if (keyStateManager.isKeyPressed(XK_c)) {
+        if (m_KeyStateManager.isKeyPressed(XK_c)) {
             polygonPoints.clear();
             drawText(POPUP_MENU, colorCreate(65535, 0, 0), 100, 50, defaultFont,
                      "Cleared points - Press anywhere to start over");
@@ -57,10 +61,10 @@ namespace ExampleApp {
         bool needsRedraw = false;
         int dx = 0, dy = 0;
 
-        if (keyStateManager.isKeyDown(XK_Left)) dx -= player.stepSize;
-        if (keyStateManager.isKeyDown(XK_Right)) dx += player.stepSize;
-        if (keyStateManager.isKeyDown(XK_Up)) dy -= player.stepSize;
-        if (keyStateManager.isKeyDown(XK_Down)) dy += player.stepSize;
+        if (m_KeyStateManager.isKeyDown(XK_Left)) dx -= player.stepSize;
+        if (m_KeyStateManager.isKeyDown(XK_Right)) dx += player.stepSize;
+        if (m_KeyStateManager.isKeyDown(XK_Up)) dy -= player.stepSize;
+        if (m_KeyStateManager.isKeyDown(XK_Down)) dy += player.stepSize;
 
         // Normalize diagonal movement to maintain consistent speed
         if (dx != 0 && dy != 0) {
@@ -75,18 +79,6 @@ namespace ExampleApp {
         }
 
         return needsRedraw;
-    }
-
-    void ExampleApp::handleKeyPress(XKeyEvent &event) {
-        const KeySym sym = XLookupKeysym(&event, 0);
-        keyStateManager.setKeyPressed(sym);
-
-        if (sym == XK_Escape) running = false;
-    }
-
-    void ExampleApp::handleKeyRelease(XKeyEvent &event) {
-        const KeySym sym = XLookupKeysym(&event, 0);
-        keyStateManager.setKeyReleased(sym);
     }
 
     void ExampleApp::handleButtonPress(XButtonEvent &event) {

@@ -23,38 +23,9 @@ namespace ExampleApp {
         int stepSize;
     };
 
-    class KeyStateManager {
-        std::unordered_map<KeySym, bool> pressedKeys;
-        std::unordered_map<KeySym, bool> prevState;
-
-    public:
-        void reserve(const size_t size) { pressedKeys.reserve(size); prevState.reserve(size); }
-
-        void setKeyPressed(const KeySym key) { pressedKeys[key] = true; }
-
-        void setKeyReleased(const KeySym key) { pressedKeys[key] = false; }
-
-        // checks if a key is currently held down
-        bool isKeyDown(const KeySym key) const { return pressedKeys.contains(key) && pressedKeys.at(key); }
-
-        // checks if a key was pressed (transition from not pressed to pressed)
-        bool isKeyPressed(const KeySym key) {
-            const bool currentlyDown = isKeyDown(key);
-            const bool wasDown = prevState.contains(key) && prevState.at(key);
-            prevState[key] = currentlyDown;
-            return currentlyDown && !wasDown;
-        }
-
-        bool stateChanged() const {
-            return pressedKeys != prevState;
-        }
-    };
-
-
     class ExampleApp final : public X11App::App {
         friend App;
 
-        KeyStateManager keyStateManager;
         Player player;
         bool running;
 
@@ -73,10 +44,6 @@ namespace ExampleApp {
         void updatePopupMenu();
 
         void handleExpose(XExposeEvent &event) override;
-
-        void handleKeyPress(XKeyEvent &event) override;
-
-        void handleKeyRelease(XKeyEvent &event) override;
 
         void handleButtonPress(XButtonEvent &event) override;
 

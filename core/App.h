@@ -16,6 +16,7 @@
 #include <X11/keysym.h>
 
 #include "FontDescriptor.h"
+#include "KeyStateManager.h"
 
 using u16 = unsigned short;
 using PixelPos = unsigned short;
@@ -26,6 +27,7 @@ namespace X11App {
     protected:
         Display *m_Display = nullptr;
         std::map<int, Window> m_Windows;
+        KeyStateManager m_KeyStateManager;
         int m_ScreenId;
 
         explicit App(Display *display) : m_Display(display), m_Windows({}),
@@ -138,8 +140,6 @@ namespace X11App {
     };
 
         HANDLE_EVENT_FUNC_TEMPLATE(Expose, Expose)
-        HANDLE_EVENT_FUNC_TEMPLATE(KeyPress, Key)
-        HANDLE_EVENT_FUNC_TEMPLATE(KeyRelease, Key)
         HANDLE_EVENT_FUNC_TEMPLATE(ButtonPress, Button)
         HANDLE_EVENT_FUNC_TEMPLATE(ButtonRelease, Button)
         HANDLE_EVENT_FUNC_TEMPLATE(MotionNotify, Motion)
@@ -163,6 +163,22 @@ namespace X11App {
         HANDLE_EVENT_FUNC_TEMPLATE(NoExpose, NoExpose)
         HANDLE_EVENT_FUNC_TEMPLATE(GraphicsExpose, GraphicsExpose)
 #undef HANDLE_EVENT_FUNC_TEMPLATE
+
+        /// Handle a key press event by updating the KeyStateManager. Uses a non const reference to allow more flexibility in handling.
+        /// Default implementation marks the key as pressed in the KeyStateManager.
+        /// @param event The XKeyEvent to handle.
+        virtual void handleKeyPress(XKeyEvent &event) {
+            const KeySym sym = XLookupKeysym(&event, 0);
+            m_KeyStateManager.setKeyPressed(sym);
+        };
+
+        /// Handle a key release event by updating the KeyStateManager. Uses a non const reference to allow more flexibility in handling.
+        /// Default implementation marks the key as released in the KeyStateManager.
+        /// @param event The XKeyEvent to handle.
+        virtual void handleKeyRelease(XKeyEvent &event) {
+            const KeySym sym = XLookupKeysym(&event, 0);
+            m_KeyStateManager.setKeyReleased(sym);
+        };
 
         // |*********************************************|
         // |                Sound System                 |

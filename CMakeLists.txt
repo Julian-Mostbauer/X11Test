@@ -11,5 +11,6 @@ add_executable(X11Test src/main.cpp
         src/ExampleApp.h
         core/FontDescriptor.h
         core/EventMask.h
-        src/allocTracker.h)
+        src/allocTracker.h
+        core/KeyStateManager.h)
 target_link_libraries(X11Test PRIVATE X11)
