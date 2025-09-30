@@ -17,8 +17,8 @@ namespace ExampleApp {
         while (running) {
             handleAllQueuedEvents();
 
-            if (!m_KeyStateManager.stateChanged()) continue;
-            if (m_KeyStateManager.isKeyPressed(XK_Escape)) {
+            if (!keyStateChanged()) continue;
+            if (keyIsPressed(XK_Escape)) {
                 running = false;
                 continue;
             }
@@ -26,7 +26,7 @@ namespace ExampleApp {
             updatePopupMenu();
             const auto needsRedraw = updatePlayer();
 
-            if (m_KeyStateManager.isKeyPressed(XK_p)) {
+            if (keyIsPressed(XK_p)) {
                 soundPlayFile("/home/julian/Projects/X11Test/assets/explosion-42132.mp3");
             }
 
@@ -39,7 +39,7 @@ namespace ExampleApp {
     }
 
     void ExampleApp::updatePopupMenu() {
-        if (m_KeyStateManager.isKeyPressed(XK_space)) {
+        if (keyIsPressed(XK_space)) {
             if (!windowCheckOpen(POPUP_MENU)) {
                 windowOpen(POPUP_MENU, 700, 100, 600, 500, defaultMask, "Popup Menu");
                 windowForceRedraw(POPUP_MENU);
@@ -49,7 +49,7 @@ namespace ExampleApp {
         }
         if (!windowCheckOpen(POPUP_MENU)) return; // only check for clear if popup is open
 
-        if (m_KeyStateManager.isKeyPressed(XK_c)) {
+        if (keyIsPressed(XK_c)) {
             polygonPoints.clear();
             drawText(POPUP_MENU, colorCreate(65535, 0, 0), 100, 50, defaultFont,
                      "Cleared points - Press anywhere to start over");
@@ -61,10 +61,10 @@ namespace ExampleApp {
         bool needsRedraw = false;
         int dx = 0, dy = 0;
 
-        if (m_KeyStateManager.isKeyDown(XK_Left)) dx -= player.stepSize;
-        if (m_KeyStateManager.isKeyDown(XK_Right)) dx += player.stepSize;
-        if (m_KeyStateManager.isKeyDown(XK_Up)) dy -= player.stepSize;
-        if (m_KeyStateManager.isKeyDown(XK_Down)) dy += player.stepSize;
+        if (keyIsDown(XK_Left)) dx -= player.stepSize;
+        if (keyIsDown(XK_Right)) dx += player.stepSize;
+        if (keyIsDown(XK_Up)) dy -= player.stepSize;
+        if (keyIsDown(XK_Down)) dy += player.stepSize;
 
         // Normalize diagonal movement to maintain consistent speed
         if (dx != 0 && dy != 0) {
@@ -82,7 +82,6 @@ namespace ExampleApp {
     }
 
     void ExampleApp::handleButtonPress(XButtonEvent &event) {
-        // Example: Close popup menu on mouse click inside it
         for (const auto &winId: m_Windows | std::views::keys) {
             if (const auto win = m_Windows.at(winId); win != event.window || !windowCheckOpen(winId)) continue;
 

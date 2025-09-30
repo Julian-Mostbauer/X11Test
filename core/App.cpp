@@ -231,10 +231,6 @@ namespace X11App {
         }
     }
 
-    // |*********************************************|
-    // |                    Misc                     |
-    // |*********************************************|
-
     // temporary sound playing function using ffplay
     // todo: use a proper sound library
     void App::soundPlayFile(str path) const {
@@ -253,6 +249,10 @@ namespace X11App {
 
         system(command.c_str());
     }
+
+    // |*********************************************|
+    // |                    Key                     |
+    // |*********************************************|
 
     bool App::keyCheckEqual(const XKeyEvent &event, const KeySym XK_Key) {
         return XLookupKeysym(const_cast<XKeyEvent *>(&event), 0) == XK_Key;

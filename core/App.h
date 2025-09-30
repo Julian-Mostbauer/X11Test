@@ -187,7 +187,7 @@ namespace X11App {
         void soundPlayFile(str path) const;
 
         // |*********************************************|
-        // |                    Misc                     |
+        // |                    Key                      |
         // |*********************************************|
 
         /// Check if the given XKeyEvent corresponds to the specified KeySym.
@@ -195,6 +195,21 @@ namespace X11App {
         /// @param XK_Key The KeySym to compare against (e.g., XK_Escape).
         /// @return True if the event matches the KeySym, false otherwise.
         [[nodiscard]] static bool keyCheckEqual(const XKeyEvent &event, KeySym XK_Key);
+
+
+        /// Wrapper for m_KeyStateManager.isKeyDown
+        /// @param key The KeySym to check.
+        /// @return True if the key is currently held down, false otherwise.
+        inline bool keyIsDown(const KeySym key) const { return m_KeyStateManager.isKeyDown(key); };
+
+        /// Wrapper for m_KeyStateManager.isKeyPressed. Is not const because of the isKeyPressed implementation
+        /// @param key The KeySym to check.
+        /// @return True if the key was just pressed (transitioned from up to down), false otherwise.
+        inline bool keyIsPressed(const KeySym key) { return m_KeyStateManager.isKeyPressed(key); };
+
+        /// Wrapper for m_KeyStateManager.stateChanged
+        /// @return True if the current state and the previous state differ, false otherwise.
+        inline bool keyStateChanged() const { return m_KeyStateManager.stateChanged(); };
 
     private:
         // |*********************************************|
