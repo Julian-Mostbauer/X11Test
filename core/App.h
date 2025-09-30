@@ -72,6 +72,10 @@ namespace X11App {
         /// @return The XWindowAttributes structure containing the window's attributes.
         [[nodiscard]] XWindowAttributes windowGetAttributes(int winId) const;
 
+        /// Get the window ID corresponding to the given raw Window handle.
+        /// @param window The raw Window handle to look up.
+        /// @return An optional containing the window ID if found, or std::nullopt if not found.
+        [[nodiscard]] std::optional<int> windowRawToId(Window window) const;
 
         //|*********************************************|
         //|                  Drawing                    |

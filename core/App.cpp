@@ -84,6 +84,12 @@ namespace X11App {
         return attrs;
     }
 
+    std::optional<int> App::windowRawToId(const Window window) const {
+        // linear search, because the expected number of windows is low, usually 1-2
+        for (const auto &[id, win]: m_Windows) if (win == window) return id;
+        return std::nullopt;
+    }
+
 
     //|*********************************************|
     //|                  Drawing                    |

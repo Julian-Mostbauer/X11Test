@@ -26,9 +26,7 @@ namespace ExampleApp {
             updatePopupMenu();
             const auto needsRedraw = updatePlayer();
 
-            if (keyIsPressed(XK_p)) {
-                soundPlayFile("/home/julian/Projects/X11Test/assets/explosion-42132.mp3");
-            }
+            if (keyIsPressed(XK_p)) soundPlayFile("../assets/explosion-42132.mp3");
 
             usleep(16000); // ~60 FPS // todo: replace with proper timing mechanism
             if (needsRedraw) {
@@ -73,8 +71,8 @@ namespace ExampleApp {
         }
 
         if (dx != 0 || dy != 0) {
-            player.pos.x = std::clamp(player.pos.x + dx, player.size, winAttr.width - player.size);
-            player.pos.y = std::clamp(player.pos.y + dy, player.size, winAttr.height - player.size);
+            player.pos.x = static_cast<short>(std::clamp(player.pos.x + dx, player.size, winAttr.width - player.size));
+            player.pos.y = static_cast<short>(std::clamp(player.pos.y + dy, player.size, winAttr.height - player.size));
             needsRedraw = true;
         }
 
@@ -82,50 +80,46 @@ namespace ExampleApp {
     }
 
     void ExampleApp::handleButtonPress(XButtonEvent &event) {
-        for (const auto &winId: m_Windows | std::views::keys) {
-            if (const auto win = m_Windows.at(winId); win != event.window || !windowCheckOpen(winId)) continue;
+        const auto winId = windowRawToId(event.window);
+        if (!winId.has_value() || !windowCheckOpen(winId.value())) return;
 
-            if (winId == POPUP_MENU) {
-                std::cout << event.x << ", " << event.y << std::endl;
-                const XPoint p = {static_cast<short>(event.x), static_cast<short>(event.y)};
-                polygonPoints.push_back(p);
+        if (winId == POPUP_MENU) {
+            std::cout << event.x << ", " << event.y << std::endl;
+            const XPoint p = {static_cast<short>(event.x), static_cast<short>(event.y)};
+            polygonPoints.push_back(p);
 
-                windowClear(POPUP_MENU, true);
-                windowForceRedraw(POPUP_MENU);
-            }
+            windowClear(POPUP_MENU, true);
+            windowForceRedraw(POPUP_MENU);
         }
     }
 
     void ExampleApp::handleExpose(XExposeEvent &event) {
         if (event.count != 0) return;
+        const auto winId = windowRawToId(event.window);
+        if (!winId.has_value() || !windowCheckOpen(winId.value())) return;
 
-        for (const auto &winId: m_Windows | std::views::keys) {
-            // only draw if the expose event is for this window and the window is open
-            if (const auto win = m_Windows.at(winId); win != event.window || !windowCheckOpen(winId)) continue;
-
-            switch (winId) {
-                case MAIN_WINDOW: {
-                    const auto green = colorCreate(0, 65535, 0);
-                    drawCircle(MAIN_WINDOW, green, player.pos.x, player.pos.y, player.size);
-                }
-
-                break;
-                case POPUP_MENU: {
-                    const auto blue = colorCreate(0, 0, 65535);
-                    const auto red = colorCreate(65535, 0, 0);
-
-                    drawText(POPUP_MENU, blue, 50, 100, defaultFont, "This is a popup menu. Press SPACE to close.");
-                    drawText(POPUP_MENU, blue, 50, 300, defaultFont, "Click anywhere to add points. Press C to clear.");
-
-                    if (polygonPoints.size() >= 3) {
-                        drawPolygon(POPUP_MENU, blue, polygonPoints);
-                    } else {
-                        drawText(POPUP_MENU, red, 100, 400, defaultFont, "Not enough points to draw a polygon");
-                    }
-                }
-                break;
-                default: break;
+        switch (winId.value()) {
+            case MAIN_WINDOW: {
+                const auto green = colorCreate(0, 65535, 0);
+                drawCircle(MAIN_WINDOW, green, player.pos.x, player.pos.y, player.size);
             }
+
+            break;
+            case POPUP_MENU: {
+                const auto blue = colorCreate(0, 0, 65535);
+                const auto red = colorCreate(65535, 0, 0);
+
+                drawText(POPUP_MENU, blue, 50, 100, defaultFont, "This is a popup menu. Press SPACE to close.");
+                drawText(POPUP_MENU, blue, 50, 300, defaultFont, "Click anywhere to add points. Press C to clear.");
+
+                if (polygonPoints.size() >= 3) {
+                    drawPolygon(POPUP_MENU, blue, polygonPoints);
+                } else {
+                    drawText(POPUP_MENU, red, 100, 400, defaultFont, "Not enough points to draw a polygon");
+                }
+            }
+            break;
+            default: break;
         }
     }
 }
