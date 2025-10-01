@@ -17,11 +17,7 @@ namespace ExampleApp {
         while (running) {
             handleAllQueuedEvents();
 
-            if (!keyStateChanged()) continue; // todo: check impact of this line
-            if (keyIsPressed(XK_Escape) || !windowCheckOpen(MAIN_WINDOW)) {
-                running = false;
-                continue;
-            }
+            if (keyIsPressed(XK_Escape) || !windowCheckOpen(MAIN_WINDOW)) break;
 
             updatePopupMenu();
             updatePlayer();
@@ -37,7 +33,7 @@ namespace ExampleApp {
         if (keyIsPressed(XK_space)) {
             if (!windowCheckOpen(POPUP_MENU)) {
                 windowOpen(POPUP_MENU, 700, 100, 600, 500, defaultMask, "Popup Menu");
-                windowForceRedraw(POPUP_MENU);
+                windowScheduleRedraw(POPUP_MENU);
             } else {
                 windowClose(POPUP_MENU);
             }
@@ -56,10 +52,10 @@ namespace ExampleApp {
         bool needsRedraw = false;
         int dx = 0, dy = 0;
 
-        if (keyIsDown(XK_Left)) dx -= player.stepSize;
-        if (keyIsDown(XK_Right)) dx += player.stepSize;
-        if (keyIsDown(XK_Up)) dy -= player.stepSize;
-        if (keyIsDown(XK_Down)) dy += player.stepSize;
+        if (keyIsDown(XK_a) || keyIsDown(XK_Left)) dx -= player.stepSize;
+        if (keyIsDown(XK_d) || keyIsDown(XK_Right)) dx += player.stepSize;
+        if (keyIsDown(XK_w) || keyIsDown(XK_Up)) dy -= player.stepSize;
+        if (keyIsDown(XK_s) || keyIsDown(XK_Down)) dy += player.stepSize;
 
         // Normalize diagonal movement to maintain consistent speed
         if (dx != 0 && dy != 0) {
@@ -81,10 +77,7 @@ namespace ExampleApp {
         if (!winId.has_value() || !windowCheckOpen(winId.value())) return;
 
         if (winId == POPUP_MENU) {
-            std::cout << event.x << ", " << event.y << std::endl;
-            const XPoint p = {static_cast<short>(event.x), static_cast<short>(event.y)};
-            polygonPoints.push_back(p);
-
+            polygonPoints.push_back({static_cast<short>(event.x), static_cast<short>(event.y)});
             windowScheduleRedraw(POPUP_MENU);
         }
     }

@@ -43,11 +43,24 @@ namespace X11App {
         m_Windows[winId] = window;
     }
 
+    std::future<bool> App::windowOpenAsync(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height,
+        long event_mask, const char *title) {
+        return std::async(std::launch::async,
+                          [this, winId, x, y, width, height, event_mask, title] {
+                              windowOpen(winId, x, y, width, height, event_mask, title);
+                              return true;
+                          });
+    }
+
     void App::windowClose(const int winId) noexcept {
         QUIT_EARLY_WITH_DEBUG_TRAP(!windowCheckOpen(winId), "Trying to force close a non-existent window ID %d", winId)
 
         XDestroyWindow(m_Display, m_Windows[winId]);
         m_Windows.erase(winId);
+    }
+
+    std::future<void> App::windowCloseAsync(int winId) noexcept {
+        return std::async(std::launch::async, [this, winId] { windowClose(winId); });
     }
 
     void App::windowClear(const int winId, const bool flush) const noexcept {

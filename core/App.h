@@ -5,6 +5,7 @@
 #ifndef X11TEST_APP_H
 #define X11TEST_APP_H
 
+#include <future>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -58,9 +59,29 @@ namespace X11App {
         void windowOpen(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height, long event_mask,
                         const char *title);
 
+        /// WARNING: This function comes with way more overhead than windowOpen. The sync version is way faster.
+        /// Asynchronous version of windowOpen. Returns a std::promise that will be set once the window is created.
+        /// If the window ID already exists, the promise will be set with an exception.
+        /// @param winId The ID of the window to create.
+        /// @param x The X position of the top-left corner of the window.
+        /// @param y The Y position of the top-left corner of the window.
+        /// @param width The width of the window in pixels.
+        /// @param height The height of the window in pixels.
+        /// @param event_mask The event mask to set for the window. This determines which events the window will receive.
+        /// @param title The title of the window.
+        /// @return A std::promise that will be set to true once the window is created, or set with an exception if the window ID already exists.
+        std::future<bool> windowOpenAsync(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height,
+                                          long event_mask, const char *title);
+
         /// Close and destroy the specified window. If the window ID does not exist calls debug_trap.
         /// @param winId The ID of the window to close.
         void windowClose(int winId) noexcept;
+
+        /// WARNING: This function comes with way more overhead than windowClose. The sync version is way faster.
+        /// Asynchronous version of windowClose. Returns a std::future that will be set once the window is closed.
+        /// @param winId The ID of the window to close.
+        /// @return A std::future that will be set once the window is closed.
+        std::future<void> windowCloseAsync(int winId) noexcept;
 
         /// Clear the contents of the specified window. Optionally flush the display after clearing.
         /// @param winId The ID of the window to clear.

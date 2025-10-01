@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "ExampleApp.h"
+#include "example/ExampleApp.h"
 #include "../core/App.h"
-#include "allocTracker.h"
+#include "helper/allocTracker.h"
 using X11App::App;
 
 #if defined(__unix__) || defined(__APPLE__)
