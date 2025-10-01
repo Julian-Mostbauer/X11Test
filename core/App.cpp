@@ -38,6 +38,7 @@ namespace X11App {
         XSelectInput(m_Display, window, event_mask);
         XMapWindow(m_Display, window);
         XStoreName(m_Display, window, title);
+        XSetWMProtocols(m_Display, window, &m_WM_DELETE_WINDOW_ATOM, 1);
 
         m_Windows[winId] = window;
     }
@@ -243,6 +244,30 @@ namespace X11App {
                 break;
             default: debug_trap("Unknown event type received");
                 break;
+        }
+    }
+
+    void App::handleKeyPress(XKeyEvent &event) {
+        const KeySym sym = XLookupKeysym(&event, 0);
+        m_KeyStateManager.setKeyPressed(sym);
+    }
+
+    void App::handleKeyRelease(XKeyEvent &event) {
+        const KeySym sym = XLookupKeysym(&event, 0);
+        m_KeyStateManager.setKeyReleased(sym);
+    }
+
+    void App::handleClientMessage(XClientMessageEvent &event) {
+        const auto winId = windowRawToId(event.window);
+        if (!winId.has_value() || !windowCheckOpen(winId.value())) return;
+
+        if (event.message_type == m_WM_PROTOCOLS_ATOM) {
+            if (static_cast<Atom>(event.data.l[0]) == m_WM_DELETE_WINDOW_ATOM) {
+#if DEBUG
+                std::cout << "Received WM_DELETE_WINDOW for window ID " << winId.value() << std::endl;
+#endif
+                windowClose(winId.value());
+            }
         }
     }
 

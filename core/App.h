@@ -30,10 +30,17 @@ namespace X11App {
         std::map<int, Window> m_Windows;
         KeyStateManager m_KeyStateManager;
         std::queue<int> m_RedrawQueue;
+        Atom m_WM_DELETE_WINDOW_ATOM; // todo: atom management class
+        Atom m_WM_PROTOCOLS_ATOM;
         int m_ScreenId;
 
         explicit App(Display *display) : m_Display(display), m_Windows({}),
                                          m_ScreenId(DefaultScreen(display)) {
+            m_WM_DELETE_WINDOW_ATOM = XInternAtom(m_Display, "WM_DELETE_WINDOW", true);
+            m_WM_PROTOCOLS_ATOM = XInternAtom(m_Display, "WM_PROTOCOLS", true);
+
+            if (!m_WM_DELETE_WINDOW_ATOM || !m_WM_PROTOCOLS_ATOM)
+                throw std::runtime_error("Failed to get WM_DELETE_WINDOW or WM_PROTOCOLS atom");
         }
 
         // |*********************************************|
@@ -161,7 +168,6 @@ namespace X11App {
         HANDLE_EVENT_FUNC_TEMPLATE(LeaveNotify, LeaveWindow)
         HANDLE_EVENT_FUNC_TEMPLATE(FocusIn, FocusIn)
         HANDLE_EVENT_FUNC_TEMPLATE(FocusOut, FocusOut)
-        HANDLE_EVENT_FUNC_TEMPLATE(ClientMessage, ClientMessage)
         HANDLE_EVENT_FUNC_TEMPLATE(MappingNotify, Mapping)
         HANDLE_EVENT_FUNC_TEMPLATE(ConfigureNotify, Configure)
         HANDLE_EVENT_FUNC_TEMPLATE(UnmapNotify, Unmap)
@@ -178,21 +184,19 @@ namespace X11App {
         HANDLE_EVENT_FUNC_TEMPLATE(GraphicsExpose, GraphicsExpose)
 #undef HANDLE_EVENT_FUNC_TEMPLATE
 
+        // |****** Handlers with base functionality *****|
+
         /// Handle a key press event by updating the KeyStateManager. Uses a non const reference to allow more flexibility in handling.
         /// Default implementation marks the key as pressed in the KeyStateManager.
         /// @param event The XKeyEvent to handle.
-        virtual void handleKeyPress(XKeyEvent &event) {
-            const KeySym sym = XLookupKeysym(&event, 0);
-            m_KeyStateManager.setKeyPressed(sym);
-        };
+        virtual void handleKeyPress(XKeyEvent &event);
 
         /// Handle a key release event by updating the KeyStateManager. Uses a non const reference to allow more flexibility in handling.
         /// Default implementation marks the key as released in the KeyStateManager.
         /// @param event The XKeyEvent to handle.
-        virtual void handleKeyRelease(XKeyEvent &event) {
-            const KeySym sym = XLookupKeysym(&event, 0);
-            m_KeyStateManager.setKeyReleased(sym);
-        };
+        virtual void handleKeyRelease(XKeyEvent &event);
+
+        virtual void handleClientMessage(XClientMessageEvent &event);
 
         // |*********************************************|
         // |                Sound System                 |

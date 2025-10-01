@@ -17,8 +17,8 @@ namespace ExampleApp {
         while (running) {
             handleAllQueuedEvents();
 
-            if (!keyStateChanged()) continue;
-            if (keyIsPressed(XK_Escape)) {
+            if (!keyStateChanged()) continue; // todo: check impact of this line
+            if (keyIsPressed(XK_Escape) || !windowCheckOpen(MAIN_WINDOW)) {
                 running = false;
                 continue;
             }
