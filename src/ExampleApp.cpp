@@ -28,7 +28,7 @@ namespace ExampleApp {
 
             if (keyIsPressed(XK_p)) soundPlayFile("../assets/explosion-42132.mp3");
 
-            usleep(16000); // ~60 FPS // todo: replace with proper timing mechanism
+            usleep(16000); //  ~60 FPS // todo: replace with propertiming mechanism
             windowProcessRedrawQueue();
         }
     }
@@ -56,10 +56,10 @@ namespace ExampleApp {
         bool needsRedraw = false;
         int dx = 0, dy = 0;
 
-        if (keyIsDown(XK_Left)) dx -= player.stepSize;
-        if (keyIsDown(XK_Right)) dx += player.stepSize;
-        if (keyIsDown(XK_Up)) dy -= player.stepSize;
-        if (keyIsDown(XK_Down)) dy += player.stepSize;
+        if (keyIsDown(XK_Left) || keyIsDown(XK_a)) dx -= player.stepSize;
+        if (keyIsDown(XK_Right) || keyIsDown(XK_d)) dx += player.stepSize;
+        if (keyIsDown(XK_Up) || keyIsDown(XK_w)) dy -= player.stepSize;
+        if (keyIsDown(XK_Down) || keyIsDown(XK_s)) dy += player.stepSize;
 
         // Normalize diagonal movement to maintain consistent speed
         if (dx != 0 && dy != 0) {
