@@ -9,9 +9,10 @@ add_executable(X11Test src/main.cpp
         core/App.h
         src/example/ExampleApp.cpp
         src/example/ExampleApp.h
-        core/FontDescriptor.h
-        core/EventMask.h
+        core/lib/FontDescriptor.h
+        core/lib/EventMask.h
         src/helper/allocTracker.h
-        core/KeyStateManager.h
-        src/helper/ScopeTimer.h)
+        core/lib/KeyStateManager.h
+        src/helper/ScopeTimer.h
+        core/lib/AtomManager.h)
 target_link_libraries(X11Test PRIVATE X11)

@@ -38,13 +38,13 @@ namespace X11App {
         XSelectInput(m_Display, window, event_mask);
         XMapWindow(m_Display, window);
         XStoreName(m_Display, window, title);
-        XSetWMProtocols(m_Display, window, &m_WM_DELETE_WINDOW_ATOM, 1);
+        XSetWMProtocols(m_Display, window, &m_AtomManager.WM_DELETE_WINDOW_ATOM, 1);
 
         m_Windows[winId] = window;
     }
 
     std::future<bool> App::windowOpenAsync(int winId, PixelPos x, PixelPos y, PixelPos width, PixelPos height,
-        long event_mask, const char *title) {
+                                           long event_mask, const char *title) {
         return std::async(std::launch::async,
                           [this, winId, x, y, width, height, event_mask, title] {
                               windowOpen(winId, x, y, width, height, event_mask, title);
@@ -274,8 +274,8 @@ namespace X11App {
         const auto winId = windowRawToId(event.window);
         if (!winId.has_value() || !windowCheckOpen(winId.value())) return;
 
-        if (event.message_type == m_WM_PROTOCOLS_ATOM) {
-            if (static_cast<Atom>(event.data.l[0]) == m_WM_DELETE_WINDOW_ATOM) {
+        if (event.message_type == m_AtomManager.WM_PROTOCOLS_ATOM) {
+            if (static_cast<Atom>(event.data.l[0]) == m_AtomManager.WM_DELETE_WINDOW_ATOM) {
 #if DEBUG
                 std::cout << "Received WM_DELETE_WINDOW for window ID " << winId.value() << std::endl;
 #endif

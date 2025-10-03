@@ -17,8 +17,9 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#include "FontDescriptor.h"
-#include "KeyStateManager.h"
+#include "lib/AtomManager.h"
+#include "lib/FontDescriptor.h"
+#include "lib/KeyStateManager.h"
 
 using u16 = unsigned short;
 using PixelPos = unsigned short;
@@ -28,20 +29,14 @@ namespace X11App {
     class App {
     protected:
         Display *m_Display = nullptr;
+        int m_ScreenId;
         std::map<int, Window> m_Windows;
         KeyStateManager m_KeyStateManager;
-        std::queue<int> m_RedrawQueue;
-        Atom m_WM_DELETE_WINDOW_ATOM; // todo: atom management class
-        Atom m_WM_PROTOCOLS_ATOM;
-        int m_ScreenId;
+        std::queue<int> m_RedrawQueue{};
+        AtomManager m_AtomManager;
 
-        explicit App(Display *display) : m_Display(display), m_Windows({}),
-                                         m_ScreenId(DefaultScreen(display)) {
-            m_WM_DELETE_WINDOW_ATOM = XInternAtom(m_Display, "WM_DELETE_WINDOW", true);
-            m_WM_PROTOCOLS_ATOM = XInternAtom(m_Display, "WM_PROTOCOLS", true);
-
-            if (!m_WM_DELETE_WINDOW_ATOM || !m_WM_PROTOCOLS_ATOM)
-                throw std::runtime_error("Failed to get WM_DELETE_WINDOW or WM_PROTOCOLS atom");
+        explicit App(Display *display) : m_Display(display),
+                                         m_ScreenId(DefaultScreen(display)), m_AtomManager(display) {
         }
 
         // |*********************************************|

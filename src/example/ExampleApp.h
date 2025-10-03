@@ -6,7 +6,7 @@
 #define X11TEST_TESTAPP_H
 
 #include "../../core/App.h"
-#include "../../core/EventMask.h"
+#include "../../core/lib/EventMask.h"
 
 
 namespace ExampleApp {
