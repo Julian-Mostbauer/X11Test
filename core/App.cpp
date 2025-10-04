@@ -191,6 +191,19 @@ namespace X11App {
         XFreeGC(m_Display, gc);
     }
 
+    void App::drawLine(const int winId, const XColor &color, const PixelPos x1, const PixelPos y1, const PixelPos x2, const PixelPos y2) const {
+        REQUIRE_WINDOW(winId, "Attempting to draw a line on a non-existent window ID " + std::to_string(winId))
+        const Window activeWindow = m_Windows.at(winId);
+
+        const GC gc = XCreateGC(m_Display, activeWindow, 0, nullptr);
+
+        XSetForeground(m_Display, gc, color.pixel);
+        XDrawLine(m_Display, activeWindow, gc, x1, y1, x2, y2);
+
+        XFreeGC(m_Display, gc);
+    }
+
+
     // |*********************************************|
     // |               Event Handling                |
     // |*********************************************|

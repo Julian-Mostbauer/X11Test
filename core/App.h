@@ -104,6 +104,7 @@ namespace X11App {
 
         /// Schedule a redraw of the specified window by adding it to the redraw queue.
         /// The actual redraw will be processed later when windowProcessRedrawQueue is called.
+        /// @warning Do not call this within the handleExpose event handler to avoid infinite redraw loops.
         /// @param winId The ID of the window to schedule for redraw.
         inline void windowScheduleRedraw(const int winId) noexcept { m_RedrawQueue.push(winId); };
 
@@ -128,6 +129,7 @@ namespace X11App {
         /// @param y The Y position of the top-left corner of the rectangle.
         /// @param width The width of the rectangle in pixels. Default is 1.
         /// @param height The height of the rectangle in pixels. Default is 1.
+        /// @throws std::runtime_error if the window ID does not exist.
         void drawRectangle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos width = 1,
                            PixelPos height = 1) const;
 
@@ -137,6 +139,7 @@ namespace X11App {
         /// @param x The X position of the center of the circle.
         /// @param y The Y position of the center of the circle.
         /// @param radius The radius of the circle in pixels. Default is 10.
+        /// @throws std::runtime_error if the window ID does not exist.
         void drawCircle(int winId, const XColor &color, PixelPos x, PixelPos y, PixelPos radius = 10) const;
 
         /// Draw text on the specified window using a FontDescriptor.
@@ -146,13 +149,26 @@ namespace X11App {
         /// @param y The Y position of the top-left corner of the text.
         /// @param fontStr The X-Logical-Font-Description of the font.
         /// @param text The text to draw.
+        /// @throws std::runtime_error if the window ID does not exist.
         void drawText(int winId, const XColor &color, PixelPos x, PixelPos y, str fontStr, str text) const;
 
         /// Draw a filled polygon on the specified window.
         /// @param winId The ID of the window to draw on.
         /// @param color The color to use for drawing.
         /// @param points A vector of XPoint structures defining the vertices of the polygon.
+        /// @throws std::runtime_error if the window ID does not exist.
+        /// @throws std::runtime_error if the number of points is less than 3.
         void drawPolygon(int winId, const XColor &color, std::vector<XPoint> &points) const;
+
+        /// Draw a line on the specified window.
+        /// @param winId The ID of the window to draw on.
+        /// @param color The color to use for drawing.
+        /// @param x1 The X position of the start point of the line.
+        /// @param y1 The Y position of the start point of the line.
+        /// @param x2 The X position of the end point of the line.
+        /// @param y2 The Y position of the end point of the line.
+        /// @throws std::runtime_error if the window ID does not exist.
+        void drawLine(int winId, const XColor &color, PixelPos x1, PixelPos y1, PixelPos x2, PixelPos y2) const;
 
         // todo: Make it possible to draw images https://stackoverflow.com/questions/6609281/how-to-draw-an-image-from-file-on-window-with-xlib
         // void drawImage(int winId, int x, int y, const str path) const;
