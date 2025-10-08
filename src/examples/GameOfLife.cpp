@@ -2,15 +2,15 @@
 // Created by julian on 9/22/25.
 //
 
-#include "ExampleApp.h"
+#include "GameOfLife.h"
 
 #include <algorithm>
 #include <ranges>
 #include <unistd.h>
 
 // todo: create separate thread for input handling
-namespace ExampleApp {
-    void ExampleApp::run() {
+namespace GameOfLife {
+    void GameOfLifeApp::run() {
         windowOpen(MAIN_WINDOW, 100, 100, 550, 300,
                    defaultMask, "Test Window 1");
 
@@ -41,7 +41,7 @@ namespace ExampleApp {
     }
 
 
-    void ExampleApp::handleButtonPress(XButtonEvent &event) {
+    void GameOfLifeApp::handleButtonPress(XButtonEvent &event) {
         const auto winId = windowRawToId(event.window);
         if (!winId.has_value() || !windowCheckOpen(winId.value())) return;
 
@@ -55,7 +55,7 @@ namespace ExampleApp {
         windowScheduleRedraw(winId.value());
     }
 
-    void ExampleApp::gridStep() {
+    void GameOfLifeApp::gridStep() {
         static bool newGrid[gridWidth][gridHeight];
         for (int x = 0; x < gridWidth; ++x) {
             for (int y = 0; y < gridHeight; ++y) {
@@ -79,7 +79,7 @@ namespace ExampleApp {
         windowScheduleRedraw(MAIN_WINDOW);
     }
 
-    void ExampleApp::handleExpose(XExposeEvent &event) {
+    void GameOfLifeApp::handleExpose(XExposeEvent &event) {
         if (event.count != 0) return;
         const auto eventWinId = windowRawToId(event.window);
         if (!eventWinId.has_value() || !windowCheckOpen(eventWinId.value())) return;

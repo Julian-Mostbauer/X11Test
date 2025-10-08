@@ -7,12 +7,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -DTRACK_ALLOCATIONS=0 -Wall -W
 add_executable(X11Test src/main.cpp
         core/App.cpp
         core/App.h
-        src/example/ExampleApp.cpp
-        src/example/ExampleApp.h
+        src/examples/GameOfLife.cpp
+        src/examples/GameOfLife.h
         core/lib/FontDescriptor.h
         core/lib/EventMask.h
         src/helper/allocTracker.h
         core/lib/KeyStateManager.h
         src/helper/ScopeTimer.h
-        core/lib/AtomManager.h)
+        core/lib/AtomManager.h
+        src/helper/x11Detection.h)
 target_link_libraries(X11Test PRIVATE X11)

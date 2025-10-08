@@ -9,7 +9,7 @@
 #include "../../core/lib/EventMask.h"
 
 
-namespace ExampleApp {
+namespace GameOfLife {
     enum TestAppWindows {
         MAIN_WINDOW = 1
     };
@@ -18,7 +18,7 @@ namespace ExampleApp {
     constexpr int gridHeight = 20;
     constexpr int stepIntervalMs = 250;
 
-    class ExampleApp final : public X11App::App {
+    class GameOfLifeApp final : public X11App::App {
         friend App;
 
         bool grid[gridWidth][gridHeight];
@@ -29,7 +29,7 @@ namespace ExampleApp {
         const long defaultMask;
         const std::string defaultFont;
 
-        explicit ExampleApp(Display *display)
+        explicit GameOfLifeApp(Display *display)
             : App(display), running(true), isPaused(true), polygonPoints({}), defaultMask(
                   X11App::EventMask().useExposureMask().useKeyPressMask().useKeyReleaseMask().
                   useButtonPressMask().mask), defaultFont(X11App::FontDescriptor("helvetica", 150).toString()) {
